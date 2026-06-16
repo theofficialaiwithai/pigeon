@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { callClaude } from "@/lib/anthropic-fetch";
 import { db } from "@/lib/db";
 import { teachers, voiceProfiles } from "@/lib/schema";
 import { extractJSON } from "@/lib/extract-json";
@@ -30,7 +30,6 @@ function countWords(text: string): number {
 }
 
 export async function POST(req: Request) {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -70,15 +69,12 @@ export async function POST(req: Request) {
     .map((email, i) => `--- EMAIL ${i + 1} ---\n${email.trim()}`)
     .join("\n\n");
 
-  const message = await anthropic.messages.create({
+  const rawText = await callClaude({
     model: "claude-sonnet-4-6",
     max_tokens: 2000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: emailContent }],
   });
-
-  const rawText =
-    message.content[0].type === "text" ? message.content[0].text.trim() : "";
 
   let profileData: Record<string, unknown>;
   try {

@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { callClaude } from "@/lib/anthropic-fetch";
 import { db } from "@/lib/db";
 import {
   cohorts,
@@ -161,20 +161,12 @@ Cohort Starts: ${asDateStr(cohort.cohortStartDate)}${cohort.seatCount ? `\nSeats
 Send schedule:
 ${scheduleLines}`;
 
-    // Instantiate inside handler so ANTHROPIC_API_KEY is read at runtime
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-
-    const message = await anthropic.messages.create({
+    const rawText = await callClaude({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     });
-
-    const rawText =
-      message.content[0].type === "text" ? message.content[0].text.trim() : "";
 
     let parsed: { emails: EmailFromClaude[] };
     try {
