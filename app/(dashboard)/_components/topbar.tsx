@@ -11,6 +11,8 @@ const TITLES: Record<string, string> = {
 
 function deriveTitle(pathname: string): string {
   if (TITLES[pathname]) return TITLES[pathname];
+  if (pathname.endsWith("/voice")) return "Voice Profile";
+  if (pathname.endsWith("/sequence")) return "Email Sequence";
   if (pathname.startsWith("/cohorts/")) return "Cohort Details";
   return "Pigeon";
 }
