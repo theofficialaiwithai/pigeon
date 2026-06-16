@@ -1,10 +1,12 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { TeacherSync } from "./sync";
 
 export default async function DashboardPage() {
   const user = await currentUser();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-pigeon-bg">
+      <TeacherSync />
       <div className="rounded-2xl bg-pigeon-surface p-10 shadow-sm">
         <h1 className="font-[family-name:var(--font-plus-jakarta-sans)] text-3xl font-extrabold text-pigeon-primary">
           Welcome to Pigeon
