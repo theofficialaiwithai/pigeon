@@ -13,8 +13,6 @@ import {
 } from "@/lib/schema";
 import { toSendAt, formatSendDate } from "@/lib/dates";
 
-const anthropic = new Anthropic();
-
 const EMAIL_SCHEDULE = [
   { type: "pre_launch_warmup", base: "cartOpen", offset: -14 },
   { type: "list_primer", base: "cartOpen", offset: -7 },
@@ -40,71 +38,88 @@ type EmailFromClaude = {
   }>;
 };
 
+/** Normalise a Drizzle `date` column value to "YYYY-MM-DD" string. */
+function asDateStr(value: unknown): string {
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+  return String(value);
+}
+
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const body = await req.json().catch(() => null);
-  const { cohortId } = (body ?? {}) as { cohortId?: string };
+    const body = await req.json().catch(() => null);
+    const { cohortId } = (body ?? {}) as { cohortId?: string };
 
-  if (!cohortId) {
-    return NextResponse.json({ error: "cohortId is required" }, { status: 400 });
-  }
+    if (!cohortId) {
+      return NextResponse.json(
+        { error: "cohortId is required" },
+        { status: 400 }
+      );
+    }
 
-  const [teacher] = await db
-    .select()
-    .from(teachers)
-    .where(eq(teachers.clerkUserId, userId))
-    .limit(1);
+    const [teacher] = await db
+      .select()
+      .from(teachers)
+      .where(eq(teachers.clerkUserId, userId))
+      .limit(1);
 
-  if (!teacher) {
-    return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
-  }
+    if (!teacher) {
+      return NextResponse.json(
+        { error: "Teacher not found" },
+        { status: 404 }
+      );
+    }
 
-  const [cohort] = await db
-    .select()
-    .from(cohorts)
-    .where(and(eq(cohorts.id, cohortId), eq(cohorts.teacherId, teacher.id)))
-    .limit(1);
+    const [cohort] = await db
+      .select()
+      .from(cohorts)
+      .where(and(eq(cohorts.id, cohortId), eq(cohorts.teacherId, teacher.id)))
+      .limit(1);
 
-  if (!cohort) {
-    return NextResponse.json({ error: "Cohort not found" }, { status: 404 });
-  }
+    if (!cohort) {
+      return NextResponse.json(
+        { error: "Cohort not found" },
+        { status: 404 }
+      );
+    }
 
-  const [vp] = await db
-    .select()
-    .from(voiceProfiles)
-    .where(eq(voiceProfiles.teacherId, teacher.id))
-    .limit(1);
+    const [vp] = await db
+      .select()
+      .from(voiceProfiles)
+      .where(eq(voiceProfiles.teacherId, teacher.id))
+      .limit(1);
 
-  if (!vp?.fullProfileJson) {
-    return NextResponse.json(
-      { error: "Set up your voice profile first" },
-      { status: 400 }
-    );
-  }
+    if (!vp?.fullProfileJson) {
+      return NextResponse.json(
+        { error: "Set up your voice profile first" },
+        { status: 400 }
+      );
+    }
 
-  const tz = teacher.timezone ?? "America/New_York";
+    const tz = teacher.timezone ?? "America/New_York";
+    const cartOpenStr = asDateStr(cohort.cartOpenDate);
+    const cartCloseStr = asDateStr(cohort.cartCloseDate);
 
-  // Build send-date map
-  const sendDates = new Map<string, Date>();
-  for (const entry of EMAIL_SCHEDULE) {
-    const base =
-      entry.base === "cartOpen"
-        ? (cohort.cartOpenDate as string)
-        : (cohort.cartCloseDate as string);
-    sendDates.set(entry.type, toSendAt(base, entry.offset, tz));
-  }
+    // Build send-date map
+    const sendDates = new Map<string, Date>();
+    for (const entry of EMAIL_SCHEDULE) {
+      const base = entry.base === "cartOpen" ? cartOpenStr : cartCloseStr;
+      sendDates.set(entry.type, toSendAt(base, entry.offset, tz));
+    }
 
-  // Format schedule for user message
-  const scheduleLines = EMAIL_SCHEDULE.map(({ type }) => {
-    const date = sendDates.get(type)!;
-    return `  ${type}: ${formatSendDate(date, tz)}`;
-  }).join("\n");
+    // Format schedule for user message
+    const scheduleLines = EMAIL_SCHEDULE.map(({ type }) => {
+      const date = sendDates.get(type)!;
+      return `  ${type}: ${formatSendDate(date, tz)}`;
+    }).join("\n");
 
-  const systemPrompt = `You are writing a launch email sequence for a course creator.
+    const systemPrompt = `You are writing a launch email sequence for a course creator.
 Write ONLY in their voice — not yours.
 
 Voice Profile: ${JSON.stringify(vp.fullProfileJson, null, 2)}
@@ -132,83 +147,106 @@ Schema:
 
 body_html: use clean <p> tags. No CSS, no inline styles, no complex HTML.`;
 
-  const userMessage = `Program: ${cohort.programName}
+    const userMessage = `Program: ${cohort.programName}
 Curriculum: ${cohort.curriculumSummary}
 Cart Opens: ${formatSendDate(sendDates.get("cart_open")!, tz)}
 Cart Closes: ${formatSendDate(sendDates.get("final_call")!, tz)}
-Cohort Starts: ${cohort.cohortStartDate}${cohort.seatCount ? `\nSeats Available: ${cohort.seatCount}` : ""}${cohort.priceUsd ? `\nPrice: $${cohort.priceUsd}` : ""}
+Cohort Starts: ${asDateStr(cohort.cohortStartDate)}${cohort.seatCount ? `\nSeats Available: ${cohort.seatCount}` : ""}${cohort.priceUsd ? `\nPrice: $${cohort.priceUsd}` : ""}
 
 Send schedule:
 ${scheduleLines}`;
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 8000,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userMessage }],
-  });
+    // Instantiate inside handler so ANTHROPIC_API_KEY is read at runtime
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
 
-  const rawText =
-    message.content[0].type === "text" ? message.content[0].text.trim() : "";
+    const message = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 8000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userMessage }],
+    });
 
-  let parsed: { emails: EmailFromClaude[] };
-  try {
-    parsed = JSON.parse(rawText);
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to parse Claude response" },
-      { status: 500 }
-    );
-  }
+    const rawText =
+      message.content[0].type === "text" ? message.content[0].text.trim() : "";
 
-  // Create email_sequence record
-  const [sequence] = await db
-    .insert(emailSequences)
-    .values({
-      cohortId: cohort.id,
-      teacherId: teacher.id,
-      status: "draft",
-    })
-    .returning();
+    let parsed: { emails: EmailFromClaude[] };
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error("[sequence/generate] JSON parse error:", parseErr);
+      console.error("[sequence/generate] Raw Claude response:", rawText);
+      return NextResponse.json(
+        { error: "Failed to parse Claude response", raw: rawText.slice(0, 500) },
+        { status: 500 }
+      );
+    }
 
-  // Insert emails + variants
-  for (let index = 0; index < parsed.emails.length; index++) {
-    const emailData = parsed.emails[index];
-    const scheduledSendAt = sendDates.get(emailData.email_type) ?? null;
-
-    const [savedEmail] = await db
-      .insert(emails)
+    // Create email_sequence record
+    const [sequence] = await db
+      .insert(emailSequences)
       .values({
-        sequenceId: sequence.id,
-        position: index + 1,
-        emailType: emailData.email_type,
-        subjectLine: emailData.subject_line,
-        previewText: emailData.preview_text ?? null,
-        bodyHtml: emailData.body_html,
-        scheduledSendAt,
-        approvalStatus: "draft",
+        cohortId: cohort.id,
+        teacherId: teacher.id,
+        status: "draft",
       })
       .returning();
 
-    if (emailData.variants?.length) {
-      await db.insert(emailVariants).values(
-        emailData.variants.map((v: { variant_type: string; subject_line: string; preview_text: string; body_html: string }) => ({
-          emailId: savedEmail.id,
-          variantType: v.variant_type,
-          subjectLine: v.subject_line,
-          previewText: v.preview_text ?? null,
-          bodyHtml: v.body_html,
-          isSelected: false,
-        }))
-      );
+    // Insert emails + variants
+    for (let index = 0; index < parsed.emails.length; index++) {
+      const emailData = parsed.emails[index];
+      const scheduledSendAt = sendDates.get(emailData.email_type) ?? null;
+
+      const [savedEmail] = await db
+        .insert(emails)
+        .values({
+          sequenceId: sequence.id,
+          position: index + 1,
+          emailType: emailData.email_type,
+          subjectLine: emailData.subject_line,
+          previewText: emailData.preview_text ?? null,
+          bodyHtml: emailData.body_html,
+          scheduledSendAt,
+          approvalStatus: "draft",
+        })
+        .returning();
+
+      if (emailData.variants?.length) {
+        await db.insert(emailVariants).values(
+          emailData.variants.map(
+            (v: {
+              variant_type: string;
+              subject_line: string;
+              preview_text: string;
+              body_html: string;
+            }) => ({
+              emailId: savedEmail.id,
+              variantType: v.variant_type,
+              subjectLine: v.subject_line,
+              previewText: v.preview_text ?? null,
+              bodyHtml: v.body_html,
+              isSelected: false,
+            })
+          )
+        );
+      }
     }
+
+    // Mark cohort as ready
+    await db
+      .update(cohorts)
+      .set({ status: "ready", updatedAt: new Date() })
+      .where(eq(cohorts.id, cohort.id));
+
+    return NextResponse.json({ sequenceId: sequence.id });
+  } catch (err) {
+    console.error("[sequence/generate] Unhandled error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json(
+      { error: message, stack },
+      { status: 500 }
+    );
   }
-
-  // Mark cohort as ready
-  await db
-    .update(cohorts)
-    .set({ status: "ready", updatedAt: new Date() })
-    .where(eq(cohorts.id, cohort.id));
-
-  return NextResponse.json({ sequenceId: sequence.id });
 }
