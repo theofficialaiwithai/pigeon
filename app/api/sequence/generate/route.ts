@@ -12,6 +12,7 @@ import {
   voiceProfiles,
 } from "@/lib/schema";
 import { toSendAt, formatSendDate } from "@/lib/dates";
+import { extractJSON } from "@/lib/extract-json";
 
 const EMAIL_SCHEDULE = [
   { type: "pre_launch_warmup", base: "cartOpen", offset: -14 },
@@ -173,7 +174,7 @@ ${scheduleLines}`;
 
     let parsed: { emails: EmailFromClaude[] };
     try {
-      parsed = JSON.parse(rawText);
+      parsed = JSON.parse(extractJSON(rawText));
     } catch (parseErr) {
       console.error("[sequence/generate] JSON parse error:", parseErr);
       console.error("[sequence/generate] Raw Claude response:", rawText);

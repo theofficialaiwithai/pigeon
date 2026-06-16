@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db";
 import { teachers, voiceProfiles } from "@/lib/schema";
+import { extractJSON } from "@/lib/extract-json";
 
 const anthropic = new Anthropic();
 
@@ -80,10 +81,12 @@ export async function POST(req: Request) {
 
   let profileData: Record<string, unknown>;
   try {
-    profileData = JSON.parse(rawText);
-  } catch {
+    profileData = JSON.parse(extractJSON(rawText));
+  } catch (parseErr) {
+    console.error("[voice/generate] JSON parse error:", parseErr);
+    console.error("[voice/generate] Raw Claude response:", rawText);
     return NextResponse.json(
-      { error: "Failed to parse Claude response" },
+      { error: "Failed to parse Claude response", raw: rawText.slice(0, 500) },
       { status: 500 }
     );
   }
