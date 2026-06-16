@@ -16,7 +16,7 @@ import { extractJSON } from "@/lib/extract-json";
 
 // Edge runtime: CPU-time limit (not wall-clock), so waiting on Claude's HTTP
 // response doesn't count — avoids the 10s serverless cap on Hobby plan.
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const EMAIL_SCHEDULE = [
