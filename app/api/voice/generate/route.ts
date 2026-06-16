@@ -1,0 +1,127 @@
+import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
+import { db } from "@/lib/db";
+import { teachers, voiceProfiles } from "@/lib/schema";
+
+const anthropic = new Anthropic();
+
+const SYSTEM_PROMPT = `You are a voice analyst. Analyse these 5 emails and extract a voice profile.
+Return ONLY valid JSON — no markdown, no explanation, no code fences.
+
+{
+  "sentence_length": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "punctuation_patterns": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "opening_style": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "closing_style": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "vocabulary_register": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "pronoun_usage": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "storytelling_patterns": { "classification": string, "score": number, "examples": string[], "rules": string[] },
+  "cta_style": { "classification": string, "score": number, "examples": string[], "rules": string[] }
+}
+
+Score each dimension 1-10 where 10 = extremely distinctive/strong in that dimension.
+CRITICAL: examples must be exact quotes from the input emails. Never invent examples.`;
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json().catch(() => null);
+  if (!body) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { cohortId, emails } = body as { cohortId: string; emails: string[] };
+
+  if (!cohortId) {
+    return NextResponse.json({ error: "cohortId is required" }, { status: 400 });
+  }
+  if (!Array.isArray(emails) || emails.length !== 5) {
+    return NextResponse.json({ error: "Exactly 5 emails required" }, { status: 400 });
+  }
+  if (emails.some((e) => countWords(e) < 50)) {
+    return NextResponse.json(
+      { error: "Each email must have at least 50 words" },
+      { status: 400 }
+    );
+  }
+
+  const [teacher] = await db
+    .select()
+    .from(teachers)
+    .where(eq(teachers.clerkUserId, userId))
+    .limit(1);
+
+  if (!teacher) {
+    return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
+  }
+
+  const emailContent = emails
+    .map((email, i) => `--- EMAIL ${i + 1} ---\n${email.trim()}`)
+    .join("\n\n");
+
+  const message = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: "user", content: emailContent }],
+  });
+
+  const rawText =
+    message.content[0].type === "text" ? message.content[0].text.trim() : "";
+
+  let profileData: Record<string, unknown>;
+  try {
+    profileData = JSON.parse(rawText);
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to parse Claude response" },
+      { status: 500 }
+    );
+  }
+
+  const upsertValues = {
+    teacherId: teacher.id,
+    rawEmails: emails,
+    sentenceLength: JSON.stringify(profileData.sentence_length),
+    punctuationPatterns: JSON.stringify(profileData.punctuation_patterns),
+    openingStyle: JSON.stringify(profileData.opening_style),
+    closingStyle: JSON.stringify(profileData.closing_style),
+    vocabularyRegister: JSON.stringify(profileData.vocabulary_register),
+    pronounUsage: JSON.stringify(profileData.pronoun_usage),
+    storytellingPatterns: JSON.stringify(profileData.storytelling_patterns),
+    ctaStyle: JSON.stringify(profileData.cta_style),
+    fullProfileJson: profileData,
+    updatedAt: new Date(),
+  };
+
+  const [existing] = await db
+    .select({ id: voiceProfiles.id })
+    .from(voiceProfiles)
+    .where(eq(voiceProfiles.teacherId, teacher.id))
+    .limit(1);
+
+  let saved;
+  if (existing) {
+    [saved] = await db
+      .update(voiceProfiles)
+      .set(upsertValues)
+      .where(eq(voiceProfiles.id, existing.id))
+      .returning();
+  } else {
+    [saved] = await db
+      .insert(voiceProfiles)
+      .values(upsertValues)
+      .returning();
+  }
+
+  return NextResponse.json({ profile: saved, profileData });
+}
