@@ -14,6 +14,10 @@ import {
 import { toSendAt, formatSendDate } from "@/lib/dates";
 import { extractJSON } from "@/lib/extract-json";
 
+// Edge runtime: CPU-time limit (not wall-clock), so waiting on Claude's HTTP
+// response doesn't count — avoids the 10s serverless cap on Hobby plan.
+export const runtime = "edge";
+
 const EMAIL_SCHEDULE = [
   { type: "pre_launch_warmup", base: "cartOpen", offset: -14 },
   { type: "list_primer", base: "cartOpen", offset: -7 },
@@ -164,7 +168,7 @@ ${scheduleLines}`;
 
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8000,
+      max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     });

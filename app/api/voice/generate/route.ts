@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { teachers, voiceProfiles } from "@/lib/schema";
 import { extractJSON } from "@/lib/extract-json";
 
-const anthropic = new Anthropic();
+export const runtime = "edge";
 
 const SYSTEM_PROMPT = `You are a voice analyst. Analyse these 5 emails and extract a voice profile.
 Return ONLY valid JSON — no markdown, no explanation, no code fences.
@@ -30,6 +30,7 @@ function countWords(text: string): number {
 }
 
 export async function POST(req: Request) {
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
