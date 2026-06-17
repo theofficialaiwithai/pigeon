@@ -1,5 +1,6 @@
 interface AnthropicApiResponse {
   content: Array<{ type: string; text: string }>;
+  stop_reason: string | null;
 }
 
 export async function callClaude({
@@ -12,7 +13,7 @@ export async function callClaude({
   max_tokens: number;
   system: string;
   messages: Array<{ role: "user" | "assistant"; content: string }>;
-}): Promise<string> {
+}): Promise<{ text: string; stopReason: string }> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -29,5 +30,7 @@ export async function callClaude({
   }
 
   const data = (await res.json()) as AnthropicApiResponse;
-  return data.content[0]?.type === "text" ? data.content[0].text.trim() : "";
+  const text =
+    data.content[0]?.type === "text" ? data.content[0].text.trim() : "";
+  return { text, stopReason: data.stop_reason ?? "unknown" };
 }

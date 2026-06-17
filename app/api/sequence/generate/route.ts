@@ -162,9 +162,9 @@ Cohort Starts: ${asDateStr(cohort.cohortStartDate)}${cohort.seatCount ? `\nSeats
 Send schedule:
 ${scheduleLines}`;
 
-    const rawText = await callClaude({
+    const { text: rawText, stopReason } = await callClaude({
       model: "claude-sonnet-4-6",
-      max_tokens: 4000,
+      max_tokens: 16000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     });
@@ -174,6 +174,7 @@ ${scheduleLines}`;
       parsed = JSON.parse(extractJSON(rawText));
     } catch (parseErr) {
       console.error("[sequence/generate] JSON parse error:", parseErr);
+      console.error("[sequence/generate] stop_reason:", stopReason);
       console.error("[sequence/generate] Raw Claude response:", rawText);
       return NextResponse.json(
         { error: "Failed to parse Claude response", raw: rawText.slice(0, 500) },

@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     .map((email, i) => `--- EMAIL ${i + 1} ---\n${email.trim()}`)
     .join("\n\n");
 
-  const rawText = await callClaude({
+  const { text: rawText } = await callClaude({
     model: "claude-sonnet-4-6",
     max_tokens: 2000,
     system: SYSTEM_PROMPT,
