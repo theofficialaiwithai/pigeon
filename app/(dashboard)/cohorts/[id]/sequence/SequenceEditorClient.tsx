@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckIcon, PencilIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
@@ -40,6 +40,18 @@ export interface EmailData {
   variants: EmailVariant[];
 }
 
+type RegenerateResponse = {
+  subjectLine: string;
+  previewText: string;
+  bodyHtml: string;
+  variants?: Array<{
+    variantType: string;
+    subjectLine: string;
+    previewText: string;
+    bodyHtml: string;
+  }>;
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TYPE_LABELS: Record<string, string> = {
@@ -61,8 +73,6 @@ const VARIANT_LABELS: Record<string, string> = {
 };
 
 // ─── HTML ↔ plain text helpers ────────────────────────────────────────────────
-// Claude generates only <p> tags, so we can safely round-trip through plain
-// text without a full sanitiser library.
 
 function htmlToText(html: string): string {
   return (html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) ?? [html])
@@ -92,7 +102,6 @@ function fmtDate(iso: string | null): string {
 }
 
 // ─── BodyDisplay ──────────────────────────────────────────────────────────────
-// Renders Claude-generated <p> tags as React elements — no innerHTML needed.
 
 function BodyDisplay({ html, className }: { html: string; className?: string }) {
   const paragraphs = (html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) ?? [html])
@@ -100,12 +109,7 @@ function BodyDisplay({ html, className }: { html: string; className?: string }) 
     .filter(Boolean);
 
   return (
-    <div
-      className={cn(
-        "font-sans text-[15px] leading-relaxed text-gray-800",
-        className
-      )}
-    >
+    <div className={cn("font-sans text-[15px] leading-relaxed text-gray-800", className)}>
       {paragraphs.map((para, i) => (
         <p key={i} className="mb-3 last:mb-0">
           {para}
@@ -116,7 +120,6 @@ function BodyDisplay({ html, className }: { html: string; className?: string }) 
 }
 
 // ─── BodyEditor ───────────────────────────────────────────────────────────────
-// Textarea-based editor that converts between <p> HTML and plain text.
 
 function BodyEditor({
   initialHtml,
@@ -164,21 +167,51 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// ─── RegenerateButton ─────────────────────────────────────────────────────────
+
+function RegenerateButton({
+  isRegenerating,
+  onClick,
+}: {
+  isRegenerating: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onClick}
+      disabled={isRegenerating}
+      className="text-pigeon-muted gap-1"
+    >
+      {isRegenerating ? (
+        <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
+      ) : (
+        <RefreshCwIcon className="w-3.5 h-3.5" />
+      )}
+      {isRegenerating ? "Regenerating…" : "Regenerate"}
+    </Button>
+  );
+}
+
 // ─── EmailCard ────────────────────────────────────────────────────────────────
 
 function EmailCard({
   email,
+  isRegenerating,
+  regenerateError,
   onApprove,
   onEdit,
   onChange,
+  onRegenerate,
 }: {
   email: EmailData;
+  isRegenerating: boolean;
+  regenerateError?: string;
   onApprove: () => void;
   onEdit: () => void;
-  onChange: (
-    field: "subjectLine" | "previewText" | "bodyHtml",
-    value: string
-  ) => void;
+  onChange: (field: "subjectLine" | "previewText" | "bodyHtml", value: string) => void;
+  onRegenerate: () => void;
 }) {
   const approved = email.approvalStatus === "approved";
 
@@ -207,7 +240,8 @@ function EmailCard({
         value={email.subjectLine}
         placeholder="Subject line…"
         onChange={(e) => onChange("subjectLine", e.target.value)}
-        className="w-full font-heading text-[18px] font-semibold text-pigeon-primary border-b border-transparent focus:border-pigeon-primary outline-none pb-1 transition-colors bg-transparent"
+        disabled={isRegenerating}
+        className="w-full font-heading text-[18px] font-semibold text-pigeon-primary border-b border-transparent focus:border-pigeon-primary outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
       {/* Preview text */}
@@ -215,39 +249,51 @@ function EmailCard({
         value={email.previewText}
         placeholder="Preview text…"
         onChange={(e) => onChange("previewText", e.target.value)}
-        className="w-full font-sans text-sm text-pigeon-muted border-b border-transparent focus:border-pigeon-muted outline-none pb-1 transition-colors bg-transparent"
+        disabled={isRegenerating}
+        className="w-full font-sans text-sm text-pigeon-muted border-b border-transparent focus:border-pigeon-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
       {/* Body */}
-      <div className="border border-pigeon-border rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-primary/30 transition-shadow min-h-48">
+      <div
+        className={cn(
+          "border border-pigeon-border rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-primary/30 transition-shadow min-h-48",
+          isRegenerating && "opacity-50 pointer-events-none"
+        )}
+      >
         <BodyEditor
-          key={email.id}
+          key={email.id + (isRegenerating ? "-loading" : "")}
           initialHtml={email.bodyHtml}
           onChange={(html) => onChange("bodyHtml", html)}
         />
       </div>
 
       {/* Bottom actions */}
-      <div className="flex items-center justify-end gap-2 pt-2 border-t border-pigeon-border">
+      <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+        <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
-          <>
+          <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
               <CheckIcon className="w-3.5 h-3.5" /> Approved
             </span>
-            <Button variant="ghost" size="sm" onClick={onEdit}>
+            <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
               <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
             </Button>
-          </>
+          </div>
         ) : (
           <Button
             size="sm"
             className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
             onClick={onApprove}
+            disabled={isRegenerating}
           >
             <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
           </Button>
         )}
       </div>
+
+      {regenerateError && (
+        <p className="text-xs text-pigeon-error">{regenerateError}</p>
+      )}
     </Card>
   );
 }
@@ -260,27 +306,32 @@ function FinalCallCard({
   setActiveTab,
   selectedVariantId,
   setSelectedVariantId,
+  isRegenerating,
+  regenerateError,
   onApprove,
   onEdit,
+  onRegenerate,
 }: {
   email: EmailData;
   activeTab: string;
   setActiveTab: (v: string) => void;
   selectedVariantId: string | null;
   setSelectedVariantId: (id: string) => void;
+  isRegenerating: boolean;
+  regenerateError?: string;
   onApprove: () => void;
   onEdit: () => void;
+  onRegenerate: () => void;
 }) {
   const approved = email.approvalStatus === "approved";
   const activeVariant =
-    email.variants.find((v) => v.variantType === activeTab) ??
-    email.variants[0];
+    email.variants.find((v) => v.variantType === activeTab) ?? email.variants[0];
 
   if (!activeVariant) return null;
 
   return (
     <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
-      {/* Header row — identical structure to EmailCard */}
+      {/* Header row */}
       <div className="flex items-center gap-3">
         <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-primary text-white text-sm font-bold flex items-center justify-center">
           {email.position}
@@ -298,17 +349,24 @@ function FinalCallCard({
         </div>
       </div>
 
-      {/* Active variant content — display only, no editing */}
-      <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
-        {activeVariant.subjectLine}
-      </div>
-      {activeVariant.previewText && (
-        <div className="font-sans text-sm text-pigeon-muted">
-          {activeVariant.previewText}
+      {/* Active variant content */}
+      <div
+        className={cn(
+          "space-y-4",
+          isRegenerating && "opacity-50 pointer-events-none"
+        )}
+      >
+        <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
+          {activeVariant.subjectLine}
         </div>
-      )}
-      <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
-        <BodyDisplay html={activeVariant.bodyHtml} />
+        {activeVariant.previewText && (
+          <div className="font-sans text-sm text-pigeon-muted">
+            {activeVariant.previewText}
+          </div>
+        )}
+        <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
+          <BodyDisplay html={activeVariant.bodyHtml} />
+        </div>
       </div>
 
       {/* Variant toggle — below body, above actions */}
@@ -321,6 +379,7 @@ function FinalCallCard({
               key={v.variantType}
               size="default"
               variant={isActive ? "default" : "outline"}
+              disabled={isRegenerating}
               className={cn(
                 "flex-1",
                 isActive
@@ -337,17 +396,18 @@ function FinalCallCard({
 
       {/* Bottom actions */}
       <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+        <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
-          <>
+          <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
               <CheckIcon className="w-3.5 h-3.5" /> Approved
             </span>
-            <Button variant="ghost" size="sm" onClick={onEdit}>
+            <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
               <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
             </Button>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="flex items-center gap-2">
             {selectedVariantId === activeVariant.id ? (
               <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
                 <CheckIcon className="w-4 h-4" /> Selected
@@ -356,6 +416,7 @@ function FinalCallCard({
               <Button
                 variant="outline"
                 size="sm"
+                disabled={isRegenerating}
                 onClick={() => setSelectedVariantId(activeVariant.id)}
               >
                 Select This Variant
@@ -365,14 +426,19 @@ function FinalCallCard({
               <Button
                 size="sm"
                 className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
+                disabled={isRegenerating}
                 onClick={onApprove}
               >
                 <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
               </Button>
             )}
-          </>
+          </div>
         )}
       </div>
+
+      {regenerateError && (
+        <p className="text-xs text-pigeon-error">{regenerateError}</p>
+      )}
     </Card>
   );
 }
@@ -385,15 +451,15 @@ interface Props {
   initialEmails: EmailData[];
 }
 
-export function SequenceEditorClient({
-  cohortId,
-  programName,
-  initialEmails,
-}: Props) {
+export function SequenceEditorClient({ cohortId, programName, initialEmails }: Props) {
   const router = useRouter();
   const [emailList, setEmailList] = useState<EmailData[]>(initialEmails);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [approvingAll, setApprovingAll] = useState(false);
+
+  // Per-email regeneration state
+  const [regeneratingIds, setRegeneratingIds] = useState<Set<string>>(new Set());
+  const [regenerateErrors, setRegenerateErrors] = useState<Map<string, string>>(new Map());
 
   const finalCallEmail = emailList.find((e) => e.emailType === "final_call");
   const [fcActiveTab, setFcActiveTab] = useState(
@@ -403,26 +469,17 @@ export function SequenceEditorClient({
     finalCallEmail?.variants.find((v) => v.isSelected)?.id ?? null
   );
 
-  // Per-email debounce timers
-  const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map()
-  );
+  const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const approvedCount = emailList.filter(
-    (e) => e.approvalStatus === "approved"
-  ).length;
+  const approvedCount = emailList.filter((e) => e.approvalStatus === "approved").length;
   const progressPct = Math.round((approvedCount / 9) * 100);
 
-  // ── state helpers ────────────────────────────────────────────────────────
+  // ── state helpers ──────────────────────────────────────────────────────────
 
   function updateEmail(id: string, patch: Partial<EmailData>) {
-    setEmailList((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, ...patch } : e))
-    );
+    setEmailList((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
   }
 
-  // Uses setEmailList functional form so the timer always reads the latest
-  // state regardless of how many renders have fired since it was scheduled.
   function scheduleSave(emailId: string) {
     const existing = saveTimers.current.get(emailId);
     if (existing) clearTimeout(existing);
@@ -441,7 +498,7 @@ export function SequenceEditorClient({
             }),
           }).catch(() => toast.error("Auto-save failed"));
         }
-        return current; // same reference → React bails out, no re-render
+        return current;
       });
     }, 1000);
     saveTimers.current.set(emailId, t);
@@ -452,8 +509,7 @@ export function SequenceEditorClient({
     field: "subjectLine" | "previewText" | "bodyHtml",
     value: string
   ) {
-    const newStatus =
-      email.approvalStatus === "approved" ? "edited" : email.approvalStatus;
+    const newStatus = email.approvalStatus === "approved" ? "edited" : email.approvalStatus;
     updateEmail(email.id, { [field]: value, approvalStatus: newStatus });
     scheduleSave(email.id);
   }
@@ -499,6 +555,57 @@ export function SequenceEditorClient({
     }).catch(() => toast.error("Failed to reset approval"));
   }
 
+  async function handleRegenerate(email: EmailData) {
+    setRegeneratingIds((prev) => { const s = new Set(prev); s.add(email.id); return s; });
+    setRegenerateErrors((prev) => {
+      const next = new Map(prev);
+      next.delete(email.id);
+      return next;
+    });
+
+    try {
+      const res = await fetch(`/api/emails/${email.id}/regenerate`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "Regeneration failed");
+      }
+      const data = (await res.json()) as RegenerateResponse;
+
+      const patch: Partial<EmailData> = {
+        subjectLine: data.subjectLine,
+        previewText: data.previewText,
+        bodyHtml: data.bodyHtml,
+        approvalStatus: "draft",
+      };
+
+      if (data.variants) {
+        patch.variants = data.variants
+          .map((v) => {
+            const existing = email.variants.find((ev) => ev.variantType === v.variantType);
+            return existing
+              ? { ...existing, subjectLine: v.subjectLine, previewText: v.previewText, bodyHtml: v.bodyHtml }
+              : null;
+          })
+          .filter((v): v is EmailVariant => v !== null);
+      }
+
+      updateEmail(email.id, patch);
+      toast.success("Email regenerated");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Regeneration failed";
+      setRegenerateErrors((prev) => { const m = new Map(prev); m.set(email.id, message); return m; });
+      toast.error(message);
+    } finally {
+      setRegeneratingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(email.id);
+        return next;
+      });
+    }
+  }
+
   async function handleApproveAll() {
     setApprovingAll(true);
     try {
@@ -515,9 +622,7 @@ export function SequenceEditorClient({
           });
         })
       );
-      setEmailList((prev) =>
-        prev.map((e) => ({ ...e, approvalStatus: "approved" }))
-      );
+      setEmailList((prev) => prev.map((e) => ({ ...e, approvalStatus: "approved" })));
       setConfirmOpen(false);
       router.push(`/cohorts/${cohortId}/calendar`);
     } catch {
@@ -526,7 +631,7 @@ export function SequenceEditorClient({
     }
   }
 
-  // ── render ───────────────────────────────────────────────────────────────
+  // ── render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6">
@@ -550,16 +655,22 @@ export function SequenceEditorClient({
               setActiveTab={setFcActiveTab}
               selectedVariantId={fcSelectedVariantId}
               setSelectedVariantId={setFcSelectedVariantId}
+              isRegenerating={regeneratingIds.has(email.id)}
+              regenerateError={regenerateErrors.get(email.id)}
               onApprove={() => approveEmail(email)}
               onEdit={() => editEmail(email)}
+              onRegenerate={() => handleRegenerate(email)}
             />
           ) : (
             <EmailCard
               key={email.id}
               email={email}
+              isRegenerating={regeneratingIds.has(email.id)}
+              regenerateError={regenerateErrors.get(email.id)}
               onApprove={() => approveEmail(email)}
               onEdit={() => editEmail(email)}
               onChange={(field, value) => handleChange(email, field, value)}
+              onRegenerate={() => handleRegenerate(email)}
             />
           )
         )}
@@ -582,10 +693,7 @@ export function SequenceEditorClient({
       </div>
 
       {/* Confirm dialog */}
-      <Dialog
-        open={confirmOpen}
-        onOpenChange={(open: boolean) => setConfirmOpen(open)}
-      >
+      <Dialog open={confirmOpen} onOpenChange={(open: boolean) => setConfirmOpen(open)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Approve all 9 emails?</DialogTitle>
