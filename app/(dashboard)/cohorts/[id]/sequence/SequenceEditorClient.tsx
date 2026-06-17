@@ -275,100 +275,102 @@ function FinalCallCard({
   const approved = email.approvalStatus === "approved";
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="mb-2">
-        {email.variants.map((v) => (
-          <TabsTrigger
-            key={v.variantType}
-            value={v.variantType}
-            className={cn(
-              selectedVariantId !== null &&
-                selectedVariantId !== v.id &&
-                "opacity-50"
-            )}
-          >
-            {VARIANT_LABELS[v.variantType] ?? v.variantType}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+    <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
+      {/* Header row — identical structure to EmailCard */}
+      <div className="flex items-center gap-3">
+        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-primary text-white text-sm font-bold flex items-center justify-center">
+          {email.position}
+        </span>
+        <span className="font-sans text-sm font-semibold text-pigeon-primary">
+          {TYPE_LABELS[email.emailType] ?? email.emailType}
+        </span>
+        {email.scheduledSendAt && (
+          <span className="font-sans text-sm text-pigeon-muted">
+            · {fmtDate(email.scheduledSendAt)}
+          </span>
+        )}
+        <div className="ml-auto">
+          <StatusBadge status={email.approvalStatus} />
+        </div>
+      </div>
 
-      {email.variants.map((variant) => (
-        <TabsContent key={variant.variantType} value={variant.variantType}>
-          <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
-            {/* Header row */}
-            <div className="flex items-center gap-3">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-primary text-white text-sm font-bold flex items-center justify-center">
-                {email.position}
-              </span>
-              <span className="font-sans text-sm font-semibold text-pigeon-primary">
-                {TYPE_LABELS[email.emailType]} —{" "}
-                {VARIANT_LABELS[variant.variantType]}
-              </span>
-              {email.scheduledSendAt && (
-                <span className="font-sans text-sm text-pigeon-muted">
-                  · {fmtDate(email.scheduledSendAt)}
-                </span>
+      {/* Tabs live inside the card so the tab bar sits within the border */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="w-full mb-2">
+          {email.variants.map((v) => (
+            <TabsTrigger
+              key={v.variantType}
+              value={v.variantType}
+              className={cn(
+                selectedVariantId !== null &&
+                  selectedVariantId !== v.id &&
+                  "opacity-50"
               )}
-              <div className="ml-auto">
-                <StatusBadge status={email.approvalStatus} />
-              </div>
-            </div>
+            >
+              {VARIANT_LABELS[v.variantType] ?? v.variantType}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-            {/* Variant content — display only, user picks one to approve */}
-            <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
-              {variant.subjectLine}
-            </div>
-            {variant.previewText && (
-              <div className="font-sans text-sm text-pigeon-muted">
-                {variant.previewText}
+        {email.variants.map((variant) => (
+          <TabsContent key={variant.variantType} value={variant.variantType}>
+            <div className="space-y-4">
+              {/* Variant subject / preview / body — display only */}
+              <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
+                {variant.subjectLine}
               </div>
-            )}
-            <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
-              <BodyDisplay html={variant.bodyHtml} />
-            </div>
+              {variant.previewText && (
+                <div className="font-sans text-sm text-pigeon-muted">
+                  {variant.previewText}
+                </div>
+              )}
+              <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
+                <BodyDisplay html={variant.bodyHtml} />
+              </div>
 
-            {/* Bottom actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
-              {approved ? (
-                <>
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
-                    <CheckIcon className="w-3.5 h-3.5" /> Approved
-                  </span>
-                  <Button variant="ghost" size="sm" onClick={onEdit}>
-                    <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {selectedVariantId === variant.id ? (
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
-                      <CheckIcon className="w-4 h-4" /> Selected
+              {/* Bottom actions */}
+              <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+                {approved ? (
+                  <>
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
+                      <CheckIcon className="w-3.5 h-3.5" /> Approved
                     </span>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedVariantId(variant.id)}
-                    >
-                      Select This Variant
+                    <Button variant="ghost" size="sm" onClick={onEdit}>
+                      <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
                     </Button>
-                  )}
-                  {selectedVariantId === variant.id && (
-                    <Button
-                      size="sm"
-                      className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
-                      onClick={onApprove}
-                    >
-                      <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
-                    </Button>
-                  )}
-                </>
-              )}
+                  </>
+                ) : (
+                  <>
+                    {selectedVariantId === variant.id ? (
+                      <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
+                        <CheckIcon className="w-4 h-4" /> Selected
+                      </span>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedVariantId(variant.id)}
+                      >
+                        Select This Variant
+                      </Button>
+                    )}
+                    {selectedVariantId === variant.id && (
+                      <Button
+                        size="sm"
+                        className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
+                        onClick={onApprove}
+                      >
+                        <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </Card>
-        </TabsContent>
-      ))}
-    </Tabs>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </Card>
   );
 }
 
