@@ -7,7 +7,6 @@ import { CheckIcon, PencilIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -273,6 +272,11 @@ function FinalCallCard({
   onEdit: () => void;
 }) {
   const approved = email.approvalStatus === "approved";
+  const activeVariant =
+    email.variants.find((v) => v.variantType === activeTab) ??
+    email.variants[0];
+
+  if (!activeVariant) return null;
 
   return (
     <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
@@ -294,82 +298,81 @@ function FinalCallCard({
         </div>
       </div>
 
-      {/* Tabs live inside the card so the tab bar sits within the border */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full mb-2">
-          {email.variants.map((v) => (
-            <TabsTrigger
+      {/* Active variant content — display only, no editing */}
+      <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
+        {activeVariant.subjectLine}
+      </div>
+      {activeVariant.previewText && (
+        <div className="font-sans text-sm text-pigeon-muted">
+          {activeVariant.previewText}
+        </div>
+      )}
+      <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
+        <BodyDisplay html={activeVariant.bodyHtml} />
+      </div>
+
+      {/* Variant toggle — below body, above actions */}
+      <div className="flex gap-2">
+        {email.variants.map((v) => {
+          const isActive = v.variantType === activeTab;
+          const isDimmed = selectedVariantId !== null && selectedVariantId !== v.id;
+          return (
+            <Button
               key={v.variantType}
-              value={v.variantType}
+              size="default"
+              variant={isActive ? "default" : "outline"}
               className={cn(
-                selectedVariantId !== null &&
-                  selectedVariantId !== v.id &&
-                  "opacity-50"
+                "flex-1",
+                isActive
+                  ? "bg-pigeon-primary hover:bg-pigeon-primary/90 text-white border-pigeon-primary"
+                  : cn("text-pigeon-muted", isDimmed && "opacity-50")
               )}
+              onClick={() => setActiveTab(v.variantType)}
             >
               {VARIANT_LABELS[v.variantType] ?? v.variantType}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+            </Button>
+          );
+        })}
+      </div>
 
-        {email.variants.map((variant) => (
-          <TabsContent key={variant.variantType} value={variant.variantType}>
-            <div className="space-y-4">
-              {/* Variant subject / preview / body — display only */}
-              <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
-                {variant.subjectLine}
-              </div>
-              {variant.previewText && (
-                <div className="font-sans text-sm text-pigeon-muted">
-                  {variant.previewText}
-                </div>
-              )}
-              <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
-                <BodyDisplay html={variant.bodyHtml} />
-              </div>
-
-              {/* Bottom actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
-                {approved ? (
-                  <>
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
-                      <CheckIcon className="w-3.5 h-3.5" /> Approved
-                    </span>
-                    <Button variant="ghost" size="sm" onClick={onEdit}>
-                      <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    {selectedVariantId === variant.id ? (
-                      <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
-                        <CheckIcon className="w-4 h-4" /> Selected
-                      </span>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedVariantId(variant.id)}
-                      >
-                        Select This Variant
-                      </Button>
-                    )}
-                    {selectedVariantId === variant.id && (
-                      <Button
-                        size="sm"
-                        className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
-                        onClick={onApprove}
-                      >
-                        <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
-                      </Button>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+      {/* Bottom actions */}
+      <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+        {approved ? (
+          <>
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
+              <CheckIcon className="w-3.5 h-3.5" /> Approved
+            </span>
+            <Button variant="ghost" size="sm" onClick={onEdit}>
+              <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
+            </Button>
+          </>
+        ) : (
+          <>
+            {selectedVariantId === activeVariant.id ? (
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
+                <CheckIcon className="w-4 h-4" /> Selected
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedVariantId(activeVariant.id)}
+              >
+                Select This Variant
+              </Button>
+            )}
+            {selectedVariantId === activeVariant.id && (
+              <Button
+                size="sm"
+                className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
+                onClick={onApprove}
+              >
+                <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
+              </Button>
+            )}
+          </>
+        )}
+      </div>
     </Card>
   );
 }
