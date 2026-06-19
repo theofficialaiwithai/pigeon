@@ -52,6 +52,7 @@ export const cohorts = pgTable(
     cartCloseDate: date("cart_close_date").notNull(),
     seatCount: integer("seat_count"),
     priceUsd: integer("price_usd"),
+    kajabiProductId: text("kajabi_product_id"),
     status: text("status").default("draft"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
