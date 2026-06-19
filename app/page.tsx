@@ -36,7 +36,7 @@ export default function LandingPage() {
             </p>
             <p className="text-sm text-pigeon-muted border-l-2 border-pigeon-accent pl-4 mb-10">
               For cohort course creators who spend too long writing launch emails
-              and end up with sequences that don't sound like them.
+              and end up with sequences that don&apos;t sound like them.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link

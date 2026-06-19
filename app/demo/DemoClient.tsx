@@ -246,13 +246,7 @@ function GapLabel({ days }: { days: number | null }) {
 
 // ─── Sequence email card ─────────────────────────────────────────────────────
 
-function SequenceEmailCard({
-  email,
-  isLast,
-}: {
-  email: DemoEmail;
-  isLast: boolean;
-}) {
+function SequenceEmailCard({ email }: { email: DemoEmail }) {
   const [activeVariant, setActiveVariant] = useState<
     "urgency_led" | "results_led" | "personal_note"
   >("urgency_led");
@@ -336,16 +330,14 @@ function SequenceEmailCard({
         <Button
           variant="ghost"
           size="sm"
-          disabled
-          title="Demo mode — sign in to use this feature"
+          onClick={() => toast("Demo mode — sign in to regenerate emails.")}
           className="text-pigeon-muted"
         >
           Regenerate
         </Button>
         <Button
           size="sm"
-          disabled
-          title="Demo mode — sign in to use this feature"
+          onClick={() => toast("Demo mode — sign in to approve emails.")}
           className="bg-pigeon-success/10 text-pigeon-success border border-pigeon-success/30 hover:bg-pigeon-success/10"
         >
           Approve ✓
@@ -567,10 +559,7 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
                         )}
                       </div>
                     )}
-                    <SequenceEmailCard
-                      email={email}
-                      isLast={idx === cohort.emails.length - 1}
-                    />
+                    <SequenceEmailCard email={email} />
                   </div>
                 );
               })}
