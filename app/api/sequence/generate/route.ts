@@ -13,6 +13,7 @@ import {
 } from "@/lib/schema";
 import { toSendAt, formatSendDate } from "@/lib/dates";
 import { extractJSON } from "@/lib/extract-json";
+import { sendNotification } from "@/lib/notifications";
 
 // Edge runtime: CPU-time limit (not wall-clock), so waiting on Claude's HTTP
 // response doesn't count — avoids the 10s serverless cap on Hobby plan.
@@ -53,6 +54,10 @@ function asDateStr(value: unknown): string {
 }
 
 export async function POST(req: Request) {
+  // Lifted so the catch block can reference them for the failure notification.
+  let teacherEmail: string | undefined;
+  let cohortName: string | undefined;
+
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -81,6 +86,7 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
+    teacherEmail = teacher.email;
 
     const [cohort] = await db
       .select()
@@ -94,6 +100,7 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
+    cohortName = cohort.programName;
 
     const [vp] = await db
       .select()
@@ -238,9 +245,23 @@ ${scheduleLines}`;
       .set({ status: "ready", updatedAt: new Date() })
       .where(eq(cohorts.id, cohort.id));
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://pigeon.app";
+    void sendNotification({
+      to: teacher.email,
+      subject: "Your Pigeon sequence is ready",
+      body: `Your 9-email launch sequence for "${cohort.programName}" has been generated and is ready to review.\n\nOpen the sequence editor: ${appUrl}/cohorts/${cohort.id}/sequence`,
+    });
+
     return NextResponse.json({ sequenceId: sequence.id });
   } catch (err) {
     console.error("[sequence/generate] Unhandled error:", err);
+    if (teacherEmail) {
+      void sendNotification({
+        to: teacherEmail,
+        subject: "Something went wrong generating your sequence",
+        body: `There was an error generating the launch sequence${cohortName ? ` for "${cohortName}"` : ""}. Please try again or contact support.\n\nError: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
     const message = err instanceof Error ? err.message : String(err);
     const stack = err instanceof Error ? err.stack : undefined;
     return NextResponse.json(
