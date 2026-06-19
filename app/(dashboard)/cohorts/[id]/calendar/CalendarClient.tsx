@@ -69,6 +69,76 @@ function toDatetimeLocal(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function icsEscape(str: string): string {
+  return str
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r/g, "")
+    .replace(/\n/g, "\\n");
+}
+
+function toIcsDate(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
+    `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`
+  );
+}
+
+function toSlug(subject: string): string {
+  return (
+    subject
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "email"
+  );
+}
+
+function downloadIcs(email: EmailState) {
+  if (!email.scheduledSendAt) return;
+  const dtStart = toIcsDate(email.scheduledSendAt);
+  const dtEnd = toIcsDate(
+    new Date(new Date(email.scheduledSendAt).getTime() + 15 * 60 * 1000).toISOString()
+  );
+  const dtstamp = toIcsDate(new Date().toISOString());
+  const summary = icsEscape(
+    `Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`
+  );
+  const description = icsEscape(
+    `Pigeon scheduled launch email.\nEmail ${email.position} of 9 — ${TYPE_LABELS[email.emailType] ?? email.emailType}.\nSubject: ${email.subjectLine || "(no subject)"}`
+  );
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pigeon//Launch Email Scheduler//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:email-${email.id}@pigeon`,
+    `DTSTAMP:${dtstamp}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  const blob = new Blob([lines.join("\r\n") + "\r\n"], {
+    type: "text/calendar;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `send-date-${toSlug(email.subjectLine || "")}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function gapDays(a: string | null, b: string | null): number | null {
   if (!a || !b) return null;
   return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
@@ -262,13 +332,22 @@ export function CalendarClient({
                           </div>
                         </div>
                       </div>
-                      <div className="px-4 pb-3">
+                      <div className="px-4 pb-3 flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openDateDialog(email)}
                         >
                           Change Date
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!email.scheduledSendAt}
+                          title={!email.scheduledSendAt ? "Set a send date first" : "Download .ics file"}
+                          onClick={() => downloadIcs(email)}
+                        >
+                          Add to Calendar
                         </Button>
                       </div>
                     </div>
