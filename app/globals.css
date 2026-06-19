@@ -5,6 +5,34 @@
 :root {
   --background: #F8F7F4;
   --foreground: #111827;
+
+  /* Surface / popover — used by Dialog, Card, Dropdown */
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+
+  /* Muted backgrounds — used by TabsList, DialogFooter, ghost hovers */
+  --muted: #f3f4f6;
+  --muted-foreground: #6B7280;
+
+  /* Secondary */
+  --secondary: #f3f4f6;
+  --secondary-foreground: #111827;
+
+  /* Primary — maps to pigeon-primary */
+  --primary: #2D3282;
+  --primary-foreground: #ffffff;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Border / input / ring */
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #2D3282;
+
+  /* Border radius scale */
+  --radius: 0.75rem;
+  --radius-md: 0.5rem;
 }
 
 body {
