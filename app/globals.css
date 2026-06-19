@@ -22,6 +22,10 @@
   --primary: #2D3282;
   --primary-foreground: #ffffff;
 
+  /* Accent — used by DropdownMenuItem/hover states */
+  --accent: #EEF0FB;
+  --accent-foreground: #2D3282;
+
   /* Destructive */
   --destructive: #EF4444;
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ChevronDownIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -105,7 +112,7 @@ function downloadIcs(email: EmailState) {
   );
   const dtstamp = toIcsDate(new Date().toISOString());
   const summary = icsEscape(
-    `Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`
+    `Pigeon: Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`
   );
   const description = icsEscape(
     `Pigeon scheduled launch email.\nEmail ${email.position} of 9 — ${TYPE_LABELS[email.emailType] ?? email.emailType}.\nSubject: ${email.subjectLine || "(no subject)"}`
@@ -133,6 +140,89 @@ function downloadIcs(email: EmailState) {
   const a = document.createElement("a");
   a.href = url;
   a.download = `send-date-${toSlug(email.subjectLine || "")}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildGoogleCalendarUrl(email: EmailState): string {
+  if (!email.scheduledSendAt) return "";
+  const dtStart = toIcsDate(email.scheduledSendAt);
+  const dtEnd = toIcsDate(
+    new Date(new Date(email.scheduledSendAt).getTime() + 15 * 60 * 1000).toISOString()
+  );
+  const title = `Pigeon: Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`;
+  const details = `Pigeon scheduled launch email.\nEmail ${email.position} of 9 — ${TYPE_LABELS[email.emailType] ?? email.emailType}.\nSubject: ${email.subjectLine || "(no subject)"}`;
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${dtStart}/${dtEnd}`,
+    details,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function buildOutlookUrl(email: EmailState): string {
+  if (!email.scheduledSendAt) return "";
+  const start = new Date(email.scheduledSendAt);
+  const end = new Date(start.getTime() + 15 * 60 * 1000);
+  const title = `Pigeon: Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`;
+  const body = `Pigeon scheduled launch email. Email ${email.position} of 9 — ${TYPE_LABELS[email.emailType] ?? email.emailType}. Subject: ${email.subjectLine || "(no subject)"}`;
+  const params = new URLSearchParams({
+    rru: "addevent",
+    subject: title,
+    startdt: start.toISOString(),
+    enddt: end.toISOString(),
+    body,
+    path: "/calendar/action/compose",
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+function downloadAllIcs(emails: EmailState[], programName: string) {
+  const dtstamp = toIcsDate(new Date().toISOString());
+  const vevents = emails
+    .filter((e) => !!e.scheduledSendAt)
+    .map((email) => {
+      const dtStart = toIcsDate(email.scheduledSendAt!);
+      const dtEnd = toIcsDate(
+        new Date(new Date(email.scheduledSendAt!).getTime() + 15 * 60 * 1000).toISOString()
+      );
+      const summary = icsEscape(
+        `Pigeon: Email ${email.position}: ${email.subjectLine || (TYPE_LABELS[email.emailType] ?? email.emailType)}`
+      );
+      const description = icsEscape(
+        `Pigeon scheduled launch email.\nEmail ${email.position} of 9 — ${TYPE_LABELS[email.emailType] ?? email.emailType}.\nSubject: ${email.subjectLine || "(no subject)"}`
+      );
+      return [
+        "BEGIN:VEVENT",
+        `UID:email-${email.id}@pigeon`,
+        `DTSTAMP:${dtstamp}`,
+        `DTSTART:${dtStart}`,
+        `DTEND:${dtEnd}`,
+        `SUMMARY:${summary}`,
+        `DESCRIPTION:${description}`,
+        "END:VEVENT",
+      ].join("\r\n");
+    });
+  if (vevents.length === 0) return;
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pigeon//Launch Email Scheduler//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    ...vevents,
+    "END:VCALENDAR",
+  ];
+  const blob = new Blob([lines.join("\r\n") + "\r\n"], {
+    type: "text/calendar;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pigeon-launch-${toSlug(programName)}.ics`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -230,13 +320,29 @@ export function CalendarClient({
     <div className="flex flex-col">
       <div className="max-w-2xl mx-auto w-full space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-pigeon-primary">
-            {programName} — Launch Calendar
-          </h1>
-          <p className="text-sm text-pigeon-muted mt-1">
-            {approvedCount} of {emailList.length} emails approved
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-pigeon-primary">
+              {programName} — Launch Calendar
+            </h1>
+            <p className="text-sm text-pigeon-muted mt-1">
+              {approvedCount} of {emailList.length} emails approved
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-shrink-0 mt-1"
+            disabled={emailList.every((e) => !e.scheduledSendAt)}
+            title={
+              emailList.every((e) => !e.scheduledSendAt)
+                ? "Set at least one send date first"
+                : "Download all scheduled emails as a single .ics file"
+            }
+            onClick={() => downloadAllIcs(emailList, programName)}
+          >
+            Export Full Launch Calendar
+          </Button>
         </div>
 
         {/* Milestone markers */}
@@ -340,15 +446,45 @@ export function CalendarClient({
                         >
                           Change Date
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!email.scheduledSendAt}
-                          title={!email.scheduledSendAt ? "Set a send date first" : "Download .ics file"}
-                          onClick={() => downloadIcs(email)}
-                        >
-                          Add to Calendar
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            disabled={!email.scheduledSendAt}
+                            render={
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={!email.scheduledSendAt}
+                                title={
+                                  !email.scheduledSendAt
+                                    ? "Set a send date first"
+                                    : "Add this send date to your calendar"
+                                }
+                              />
+                            }
+                          >
+                            Add to Calendar
+                            <ChevronDownIcon className="ml-1 size-3" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="min-w-52" align="start">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                window.open(buildGoogleCalendarUrl(email), "_blank")
+                              }
+                            >
+                              Google Calendar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                window.open(buildOutlookUrl(email), "_blank")
+                              }
+                            >
+                              Outlook
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadIcs(email)}>
+                              Apple Calendar / Other (.ics)
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>
