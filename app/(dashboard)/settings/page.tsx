@@ -1,8 +1,9 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { teachers } from "@/lib/schema";
+import { platformConnections, teachers } from "@/lib/schema";
+import { KitConnectCard } from "./KitConnectCard";
 
 const TIMEZONES = [
   "America/New_York",
@@ -99,6 +100,20 @@ export default async function SettingsPage() {
     process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL
   );
 
+  const kitConn = teacher
+    ? await db
+        .select({ accountName: platformConnections.accountName })
+        .from(platformConnections)
+        .where(
+          and(
+            eq(platformConnections.teacherId, teacher.id),
+            eq(platformConnections.platform, "convertkit")
+          )
+        )
+        .limit(1)
+        .then((rows) => rows[0] ?? null)
+    : null;
+
   return (
     <div className="max-w-2xl space-y-6">
       {/* Account */}
@@ -156,6 +171,13 @@ export default async function SettingsPage() {
             </span>
           </Row>
         )}
+      </Section>
+
+      {/* Kit */}
+      <Section title="Kit (ConvertKit) Integration">
+        <Row label="Kit API Key">
+          <KitConnectCard initialAccountName={kitConn?.accountName ?? null} />
+        </Row>
       </Section>
 
       {/* Kajabi */}
