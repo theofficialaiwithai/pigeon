@@ -233,8 +233,8 @@ function EmailCard({
         className="w-full font-sans text-sm text-pigeon-ink-muted border-b border-transparent focus:border-pigeon-ink-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
-      {/* Body — approved shows branded preview; editing shows textarea */}
-      {approved ? (
+      {/* Body — always show branded preview; editing shows textarea below when not approved */}
+      <div className={cn(isRegenerating && "opacity-50 pointer-events-none")}>
         <EmailPreviewCard
           key={email.id}
           id={email.id}
@@ -243,22 +243,17 @@ function EmailCard({
           sender="You"
           voiceMatchScore={deriveVoiceMatchScore(email.id)}
           body={htmlToText(email.bodyHtml)}
-          className={cn(isRegenerating && "opacity-50 pointer-events-none")}
         />
-      ) : (
-        <div
-          className={cn(
-            "border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-48",
-            isRegenerating && "opacity-50 pointer-events-none"
-          )}
-        >
-          <BodyEditor
-            key={email.id + (isRegenerating ? "-loading" : "")}
-            initialHtml={email.bodyHtml}
-            onChange={(html) => onChange("bodyHtml", html)}
-          />
-        </div>
-      )}
+        {!approved && (
+          <div className="mt-3 border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
+            <BodyEditor
+              key={email.id + (isRegenerating ? "-loading" : "")}
+              initialHtml={email.bodyHtml}
+              onChange={(html) => onChange("bodyHtml", html)}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Bottom actions */}
       <div className="flex items-center justify-between pt-2 border-t border-pigeon-warm-rule">
@@ -303,6 +298,7 @@ function FinalCallCard({
   onApprove,
   onEdit,
   onRegenerate,
+  onVariantChange,
 }: {
   email: EmailData;
   activeTab: string;
@@ -314,6 +310,7 @@ function FinalCallCard({
   onApprove: () => void;
   onEdit: () => void;
   onRegenerate: () => void;
+  onVariantChange: (variantId: string, field: "subjectLine" | "previewText" | "bodyHtml", value: string) => void;
 }) {
   const approved = email.approvalStatus === "approved";
   const activeVariant =
@@ -341,21 +338,29 @@ function FinalCallCard({
         </div>
       </div>
 
-      {/* Active variant content */}
+      {/* Active variant content — editable fields + preview + body editor */}
       <div
         className={cn(
-          "space-y-4",
+          "space-y-3",
           isRegenerating && "opacity-50 pointer-events-none"
         )}
       >
-        <div className="font-heading text-[18px] font-semibold text-pigeon-ink">
-          {activeVariant.subjectLine}
-        </div>
-        {activeVariant.previewText && (
-          <div className="font-sans text-sm text-pigeon-ink-muted">
-            {activeVariant.previewText}
-          </div>
-        )}
+        <input
+          key={activeVariant.id + "-subject"}
+          defaultValue={activeVariant.subjectLine}
+          placeholder="Subject line…"
+          disabled={isRegenerating}
+          onChange={(e) => onVariantChange(activeVariant.id, "subjectLine", e.target.value)}
+          className="w-full font-heading text-[18px] font-semibold text-pigeon-ink border-b border-transparent focus:border-pigeon-ink outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
+        />
+        <input
+          key={activeVariant.id + "-preview"}
+          defaultValue={activeVariant.previewText}
+          placeholder="Preview text…"
+          disabled={isRegenerating}
+          onChange={(e) => onVariantChange(activeVariant.id, "previewText", e.target.value)}
+          className="w-full font-sans text-sm text-pigeon-ink-muted border-b border-transparent focus:border-pigeon-ink-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
+        />
         <EmailPreviewCard
           key={activeVariant.id}
           id={activeVariant.id}
@@ -365,6 +370,15 @@ function FinalCallCard({
           voiceMatchScore={deriveVoiceMatchScore(activeVariant.id)}
           body={htmlToText(activeVariant.bodyHtml)}
         />
+        {!approved && (
+          <div className="border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
+            <BodyEditor
+              key={activeVariant.id + (isRegenerating ? "-loading" : "")}
+              initialHtml={activeVariant.bodyHtml}
+              onChange={(html) => onVariantChange(activeVariant.id, "bodyHtml", html)}
+            />
+          </div>
+        )}
       </div>
 
       {/* Variant toggle — below body, above actions */}
@@ -467,6 +481,7 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
   );
 
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const variantSaveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const approvedCount = emailList.filter((e) => e.approvalStatus === "approved").length;
   const progressPct = Math.round((approvedCount / 9) * 100);
@@ -499,6 +514,46 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
       });
     }, 1000);
     saveTimers.current.set(emailId, t);
+  }
+
+  function scheduleVariantSave(
+    variantId: string,
+    field: "subjectLine" | "previewText" | "bodyHtml",
+    value: string
+  ) {
+    const existing = variantSaveTimers.current.get(variantId);
+    if (existing) clearTimeout(existing);
+    const apiField = field === "subjectLine" ? "subject_line" : field === "previewText" ? "preview_text" : "body_html";
+    const t = setTimeout(() => {
+      fetch(`/api/emails/variants/${variantId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ [apiField]: value }),
+      }).catch(() => toast.error("Auto-save failed"));
+    }, 1000);
+    variantSaveTimers.current.set(variantId, t);
+  }
+
+  function handleVariantChange(
+    email: EmailData,
+    variantId: string,
+    field: "subjectLine" | "previewText" | "bodyHtml",
+    value: string
+  ) {
+    const newStatus = email.approvalStatus === "approved" ? "edited" : email.approvalStatus;
+    setEmailList((prev) =>
+      prev.map((e) => {
+        if (e.id !== email.id) return e;
+        return {
+          ...e,
+          approvalStatus: newStatus,
+          variants: e.variants.map((v) =>
+            v.id === variantId ? { ...v, [field]: value } : v
+          ),
+        };
+      })
+    );
+    scheduleVariantSave(variantId, field, value);
   }
 
   function handleChange(
@@ -664,6 +719,9 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
               onApprove={() => approveEmail(email)}
               onEdit={() => editEmail(email)}
               onRegenerate={() => handleRegenerate(email)}
+              onVariantChange={(variantId, field, value) =>
+                handleVariantChange(email, variantId, field, value)
+              }
             />
           ) : (
             <EmailCard

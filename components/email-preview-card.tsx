@@ -87,9 +87,9 @@ export function EmailPreviewCard({
           <span className="font-semibold tabular-nums">{displayScore}%</span>
         </div>
 
-        {/* Body quote — accent italic serif with sienna left border */}
+        {/* Body — sans-serif with sienna left border */}
         <div
-          className="font-accent text-[13.5px] italic leading-[1.8] text-[var(--ink-muted)]"
+          className="font-sans text-[13.5px] leading-[1.8] text-[var(--ink-muted)]"
           style={{ borderLeft: "2.5px solid var(--sienna)", paddingLeft: 14 }}
         >
           {paragraphs.length > 0 ? (
