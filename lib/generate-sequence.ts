@@ -12,6 +12,7 @@ import {
 import { toSendAt, formatSendDate } from "@/lib/dates";
 import { extractJSON } from "@/lib/extract-json";
 import { sendNotification } from "@/lib/notifications";
+import { pendoTrack } from "@/lib/pendo-track";
 
 const EMAIL_SCHEDULE = [
   { type: "pre_launch_warmup", base: "cartOpen", offset: -14 },
@@ -181,6 +182,18 @@ ${scheduleLines}`;
     .update(cohorts)
     .set({ status: "ready", updatedAt: new Date() })
     .where(eq(cohorts.id, cohort.id));
+
+  void pendoTrack({
+    event: "email_sequence_generated",
+    visitorId: teacher.clerkUserId,
+    properties: {
+      cohort_id: cohort.id,
+      program_name: cohort.programName,
+      sequence_id: sequence.id,
+      email_count: parsed.emails.length,
+      has_variants: parsed.emails.some((e) => !!e.variants?.length),
+    },
+  });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://pigeon.app";
   void sendNotification({

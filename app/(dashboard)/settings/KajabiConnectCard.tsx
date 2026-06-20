@@ -36,6 +36,10 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
         setAccountName(data.accountName ?? "Kajabi");
         setClientId("");
         setClientSecret("");
+
+        pendo?.track("kajabi_integration_connected", {
+          account_name: data.accountName ?? "Kajabi",
+        });
       }
     } catch {
       setError("Network error — please try again");
@@ -49,7 +53,12 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
     setError(null);
     try {
       await fetch("/api/integrations/kajabi/disconnect", { method: "POST" });
+      const previousName = accountName;
       setAccountName(null);
+
+      pendo?.track("kajabi_integration_disconnected", {
+        account_name: previousName,
+      });
     } catch {
       setError("Failed to disconnect");
     } finally {

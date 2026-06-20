@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { cohorts, emailSequences, teachers } from "@/lib/schema";
 import { sendNotification } from "@/lib/notifications";
 import { generateSequenceForCohort } from "@/lib/generate-sequence";
+import { pendoTrack } from "@/lib/pendo-track";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -106,10 +107,25 @@ export async function POST(req: Request) {
       memberEmail,
       memberName,
     });
+
+    void pendoTrack({
+      event: "kajabi_enrollment_received",
+      visitorId: "system",
+      properties: {
+        offer_id: offerId,
+        offer_title: offerTitle,
+        member_email: memberEmail,
+        member_name: memberName,
+        cohort_matched: false,
+      },
+    });
+
     return Response.json({ received: true, matched: false }, { status: 200 });
   }
 
   // ── Enrollment processing ───────────────────────────────────────────────────
+
+  let actionTaken = "unknown";
 
   try {
     const [teacher] = await db
@@ -129,9 +145,11 @@ export async function POST(req: Request) {
     const enrolleeSuffix = enrolleeInfo ? ` (${enrolleeInfo})` : "";
 
     if (!sequence) {
+      actionTaken = "generate_sequence";
       // No sequence yet — trigger generation now.
       await generateSequenceForCohort(cohort.id);
     } else if (sequence.status === "approved" || sequence.status === "exported") {
+      actionTaken = "notify_approved";
       if (teacher) {
         void sendNotification({
           to: teacher.email,
@@ -140,6 +158,7 @@ export async function POST(req: Request) {
         });
       }
     } else {
+      actionTaken = "notify_action_needed";
       // draft / in_progress — sequence exists but isn't approved yet.
       if (teacher) {
         void sendNotification({
@@ -149,6 +168,23 @@ export async function POST(req: Request) {
         });
       }
     }
+
+    void pendoTrack({
+      event: "kajabi_enrollment_received",
+      visitorId: teacher?.clerkUserId ?? "system",
+      properties: {
+        cohort_id: cohort.id,
+        program_name: cohort.programName,
+        member_email: memberEmail,
+        member_name: memberName,
+        offer_id: offerId,
+        offer_title: offerTitle,
+        cohort_matched: true,
+        sequence_exists: !!sequence,
+        sequence_status: sequence?.status ?? null,
+        action_taken: actionTaken,
+      },
+    });
   } catch (err) {
     // Log but swallow — Kajabi must always see 200 or it will retry endlessly.
     console.error("[webhooks/kajabi] Error processing enrollment:", err);

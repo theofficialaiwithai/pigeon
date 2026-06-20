@@ -30,6 +30,10 @@ export function KitConnectCard({ initialAccountName }: Props) {
       } else {
         setAccountName(data.accountName ?? "Kit");
         setApiKey("");
+
+        pendo?.track("kit_integration_connected", {
+          account_name: data.accountName ?? "Kit",
+        });
       }
     } catch {
       setError("Network error — please try again");
@@ -43,7 +47,12 @@ export function KitConnectCard({ initialAccountName }: Props) {
     setError(null);
     try {
       await fetch("/api/integrations/convertkit/disconnect", { method: "POST" });
+      const previousName = accountName;
       setAccountName(null);
+
+      pendo?.track("kit_integration_disconnected", {
+        account_name: previousName,
+      });
     } catch {
       setError("Failed to disconnect");
     } finally {
