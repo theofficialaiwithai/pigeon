@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { GeneratingIndicator } from "@/components/generating-indicator";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -280,29 +281,8 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
   // Generating state — full replacement
   if (status === "generating") {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24">
-        <svg
-          className="size-8 animate-spin text-pigeon-sienna"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8z"
-          />
-        </svg>
-        <p className="font-heading text-xl font-semibold text-gray-900">
-          Generating your sequence…
-        </p>
+      <div className="flex flex-col items-center justify-center gap-6 py-24">
+        <GeneratingIndicator label="Generating your sequence" />
         <p className="font-sans text-sm text-pigeon-ink-muted">
           Claude is writing 9 emails in your voice. This usually takes 20–40 seconds.
         </p>
@@ -466,13 +446,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
         )}
       >
         {status === "saving" ? (
-          <>
-            <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            Saving…
-          </>
+          <GeneratingIndicator label="Saving" />
         ) : (
           "Save & Build Sequence →"
         )}

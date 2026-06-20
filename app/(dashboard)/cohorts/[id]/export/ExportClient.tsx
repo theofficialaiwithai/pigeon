@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckIcon, ExternalLinkIcon, Loader2Icon, XIcon } from "lucide-react";
+import { ExternalLinkIcon, Loader2Icon, XIcon } from "lucide-react";
+import { SuccessCheckmark } from "@/components/success-checkmark";
 import { cn } from "@/lib/utils";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -131,8 +132,8 @@ export function ExportClient({
           ← Dashboard
         </Link>
         <div className="bg-white rounded-xl border border-pigeon-warm-rule p-8 text-center space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <CheckIcon className="h-6 w-6 text-green-600" />
+          <div className="mx-auto flex items-center justify-center">
+            <SuccessCheckmark size={48} />
           </div>
           <h2 className="font-heading text-lg font-semibold text-pigeon-ink">
             Exported to Kit
@@ -253,7 +254,7 @@ export function ExportClient({
                 {exporting && !result && (
                   <Loader2Icon size={16} className="animate-spin text-pigeon-ink-muted" />
                 )}
-                {result?.success && <CheckIcon size={16} className="text-green-600" />}
+                {result?.success && <SuccessCheckmark size={20} />}
                 {result && !result.success && <XIcon size={16} className="text-red-500" />}
                 {wasAlreadyExported && !result && (
                   <span className="text-xs text-pigeon-ink-muted">Already exported</span>

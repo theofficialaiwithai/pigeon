@@ -4,12 +4,14 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckIcon, ChevronLeftIcon, Loader2Icon, PencilIcon, RefreshCwIcon } from "lucide-react";
+import { ChevronLeftIcon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { EmailPreviewCard } from "@/components/email-preview-card";
+import { GeneratingIndicator } from "@/components/generating-indicator";
+import { SuccessCheckmark } from "@/components/success-checkmark";
 import {
   Dialog,
   DialogContent,
@@ -156,20 +158,18 @@ function RegenerateButton({
   isRegenerating: boolean;
   onClick: () => void;
 }) {
+  if (isRegenerating) {
+    return <GeneratingIndicator label="Regenerating" />;
+  }
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={onClick}
-      disabled={isRegenerating}
       className="text-pigeon-ink-muted gap-1"
     >
-      {isRegenerating ? (
-        <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
-      ) : (
-        <RefreshCwIcon className="w-3.5 h-3.5" />
-      )}
-      {isRegenerating ? "Regenerating…" : "Regenerate"}
+      <RefreshCwIcon className="w-3.5 h-3.5" />
+      Regenerate
     </Button>
   );
 }
@@ -265,9 +265,8 @@ function EmailCard({
         <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-sage/10 text-pigeon-sage">
-              <CheckIcon className="w-3.5 h-3.5" /> Approved
-            </span>
+            <SuccessCheckmark size={20} />
+            <span className="font-sans text-sm font-medium text-[var(--sage)]">Approved</span>
             <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
               <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
             </Button>
@@ -279,7 +278,7 @@ function EmailCard({
             onClick={onApprove}
             disabled={isRegenerating}
           >
-            <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
+            Approve ✓
           </Button>
         )}
       </div>
@@ -398,9 +397,8 @@ function FinalCallCard({
         <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-sage/10 text-pigeon-sage">
-              <CheckIcon className="w-3.5 h-3.5" /> Approved
-            </span>
+            <SuccessCheckmark size={20} />
+            <span className="font-sans text-sm font-medium text-[var(--sage)]">Approved</span>
             <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
               <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit
             </Button>
@@ -408,8 +406,8 @@ function FinalCallCard({
         ) : (
           <div className="flex items-center gap-2">
             {selectedVariantId === activeVariant.id ? (
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-sage">
-                <CheckIcon className="w-4 h-4" /> Selected
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--sage)]">
+                <SuccessCheckmark size={14} /> Selected
               </span>
             ) : (
               <Button
@@ -428,7 +426,7 @@ function FinalCallCard({
                 disabled={isRegenerating}
                 onClick={onApprove}
               >
-                <CheckIcon className="w-3.5 h-3.5 mr-1" /> Approve ✓
+                Approve ✓
               </Button>
             )}
           </div>
