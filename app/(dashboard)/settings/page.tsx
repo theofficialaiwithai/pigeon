@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { platformConnections, teachers } from "@/lib/schema";
 import { KajabiConnectCard } from "./KajabiConnectCard";
 import { KitConnectCard } from "./KitConnectCard";
+import { WebhookConnectCard } from "./WebhookConnectCard";
 
 const TIMEZONES = [
   "America/New_York",
@@ -108,8 +109,8 @@ export default async function SettingsPage() {
     process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL
   );
 
-  // Fetch both platform connections in parallel
-  const [kajabiConn, kitConn] = await Promise.all([
+  // Fetch all platform connections in parallel
+  const [kajabiConn, kitConn, webhookConn] = await Promise.all([
     teacher
       ? db
           .select({ accountName: platformConnections.accountName })
@@ -131,6 +132,19 @@ export default async function SettingsPage() {
             and(
               eq(platformConnections.teacherId, teacher.id),
               eq(platformConnections.platform, "convertkit")
+            )
+          )
+          .limit(1)
+          .then((rows) => rows[0] ?? null)
+      : Promise.resolve(null),
+    teacher
+      ? db
+          .select({ accessToken: platformConnections.accessToken })
+          .from(platformConnections)
+          .where(
+            and(
+              eq(platformConnections.teacherId, teacher.id),
+              eq(platformConnections.platform, "webhook")
             )
           )
           .limit(1)
@@ -225,6 +239,14 @@ export default async function SettingsPage() {
         <Row label="Kit API Key">
           <KitConnectCard initialAccountName={kitConn?.accountName ?? null} />
         </Row>
+      </Section>
+
+      {/* Generic webhook */}
+      <Section
+        title="Export via Zapier or Make"
+        description="Use any other email platform — Mailchimp, Brevo, ActiveCampaign, Constant Contact, or anything else. Connect a free Zapier or Make webhook and Pigeon sends your full sequence there."
+      >
+        <WebhookConnectCard initialWebhookUrl={webhookConn?.accessToken ?? null} />
       </Section>
     </div>
   );

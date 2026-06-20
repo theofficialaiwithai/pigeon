@@ -34,30 +34,44 @@ export default async function ExportPage({
     .limit(1);
   if (!cohort) redirect("/dashboard");
 
-  // Kit connection status
-  const [kitConn] = await db
-    .select({ accountName: platformConnections.accountName })
-    .from(platformConnections)
-    .where(
-      and(
-        eq(platformConnections.teacherId, teacher.id),
-        eq(platformConnections.platform, "convertkit")
+  // Fetch Kit and webhook connections in parallel
+  const [kitConn, webhookConn] = await Promise.all([
+    db
+      .select({ accountName: platformConnections.accountName })
+      .from(platformConnections)
+      .where(
+        and(
+          eq(platformConnections.teacherId, teacher.id),
+          eq(platformConnections.platform, "convertkit")
+        )
       )
-    )
-    .limit(1);
+      .limit(1)
+      .then((rows) => rows[0] ?? null),
+    db
+      .select({ accessToken: platformConnections.accessToken })
+      .from(platformConnections)
+      .where(
+        and(
+          eq(platformConnections.teacherId, teacher.id),
+          eq(platformConnections.platform, "webhook")
+        )
+      )
+      .limit(1)
+      .then((rows) => rows[0] ?? null),
+  ]);
 
-  // Not connected — show prompt
-  if (!kitConn) {
+  // Neither connected — prompt to set up at least one
+  if (!kitConn && !webhookConn) {
     return (
       <div className="max-w-lg">
         <div className="bg-white rounded-xl border border-pigeon-border p-8 text-center space-y-4">
           <div className="text-3xl">📬</div>
           <h2 className="font-heading text-lg font-semibold text-pigeon-primary">
-            Connect Kit to export
+            Connect an email platform to export
           </h2>
           <p className="text-sm text-pigeon-muted">
-            Connect your Kit (ConvertKit) account first, then come back here to
-            export your email sequence as scheduled broadcasts.
+            Connect Kit (ConvertKit) to export directly as scheduled broadcasts, or
+            add a Zapier / Make webhook to send your sequence to any other platform.
           </p>
           <Link
             href="/settings"
@@ -70,7 +84,7 @@ export default async function ExportPage({
     );
   }
 
-  // Fetch sequence + email export status
+  // Fetch sequence
   const [sequence] = await db
     .select()
     .from(emailSequences)
@@ -86,7 +100,7 @@ export default async function ExportPage({
             No sequence yet
           </h2>
           <p className="text-sm text-pigeon-muted">
-            Generate your email sequence first before exporting to Kit.
+            Generate your email sequence first before exporting.
           </p>
           <Link
             href={`/cohorts/${params.id}/voice`}
@@ -132,7 +146,8 @@ export default async function ExportPage({
     <ExportClient
       cohortId={params.id}
       programName={cohort.programName}
-      kitAccountName={kitConn.accountName ?? "Kit"}
+      kitAccountName={kitConn?.accountName ?? null}
+      webhookConnected={!!webhookConn}
       emails={serializedEmails}
       initialExported={exported}
       initialPartial={partiallyExported}
