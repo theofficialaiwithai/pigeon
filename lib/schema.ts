@@ -60,6 +60,7 @@ export const cohorts = pgTable(
     status: text("status").default("draft"),
     // Kill switch for the scheduled-send cron. "active" | "paused" | "cancelled"
     sendStatus: text("send_status").$type<SendStatus>().default("active"),
+    archivedAt: timestamp("archived_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },
