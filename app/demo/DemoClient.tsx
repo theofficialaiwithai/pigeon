@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ChevronDownIcon } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -448,9 +449,7 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
       {/* Top nav */}
       <nav className="bg-white border-b border-pigeon-warm-rule px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="font-heading text-lg font-bold text-pigeon-ink">
-            🐦 Pigeon
-          </span>
+          <Logo variant="compact" />
           <span className="inline-flex items-center rounded-full bg-pigeon-sienna/10 text-pigeon-sienna px-2.5 py-0.5 text-xs font-semibold">
             Demo Mode
           </span>

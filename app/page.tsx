@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { PigeonMascot } from "@/components/PigeonMascot";
+import { Logo } from "@/components/logo";
 
 export default async function LandingPage() {
   const { userId } = await auth();
@@ -11,10 +11,7 @@ export default async function LandingPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-20 border-b border-pigeon-warm-rule bg-white/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <PigeonMascot pose="perched" size={28} />
-            <span className="font-heading text-xl font-bold text-pigeon-ink">Pigeon</span>
-          </div>
+          <Logo variant="compact" />
           <div className="flex items-center gap-4">
             <Link href="/demo" className="text-sm font-medium text-pigeon-ink-muted hover:text-pigeon-ink transition-colors">
               Live Demo
@@ -241,10 +238,7 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-pigeon-warm-rule py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <PigeonMascot pose="perched" size={20} />
-            <span className="font-heading text-sm font-bold text-pigeon-ink">Pigeon</span>
-          </div>
+          <Logo variant="compact" />
           <p className="text-xs text-pigeon-ink-muted">
             © 2026 Pigeon. Built for cohort course creators who launch with their whole voice.
           </p>

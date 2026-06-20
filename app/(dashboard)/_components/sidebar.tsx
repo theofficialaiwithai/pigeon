@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { LayoutDashboard, Mic2, Settings } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -19,9 +20,7 @@ export function Sidebar() {
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-pigeon-warm-rule bg-white">
       {/* Logo */}
       <div className="p-6">
-        <span className="font-heading text-xl font-bold text-pigeon-ink">
-          🐦 Pigeon
-        </span>
+        <Logo variant="compact" />
       </div>
 
       {/* Nav */}
