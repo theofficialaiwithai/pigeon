@@ -10,7 +10,7 @@ import {
   voiceProfiles,
 } from "@/lib/schema";
 import { toSendAt, formatSendDate } from "@/lib/dates";
-import { extractJSON } from "@/lib/extract-json";
+import { extractJSON, sanitizeJSON } from "@/lib/extract-json";
 import { sendNotification } from "@/lib/notifications";
 
 const EMAIL_SCHEDULE = [
@@ -140,16 +140,23 @@ ${scheduleLines}`;
   }
 
   let parsed: { emails: EmailFromClaude[] };
+  const extracted = extractJSON(rawText);
   try {
-    parsed = JSON.parse(extractJSON(rawText)) as { emails: EmailFromClaude[] };
-  } catch (parseErr) {
-    console.error("[generate-sequence] JSON parse error:", parseErr);
-    console.error("[generate-sequence] stop_reason:", stopReason);
-    console.error("[generate-sequence] Raw response (first 1000 chars):", rawText.slice(0, 1000));
-    console.error("[generate-sequence] Raw response (last 500 chars):", rawText.slice(-500));
-    throw new Error(
-      `Failed to parse Claude response (stop_reason=${stopReason}). Check server logs for the raw response.`
-    );
+    // First attempt: direct parse
+    parsed = JSON.parse(extracted) as { emails: EmailFromClaude[] };
+  } catch {
+    try {
+      // Second attempt: sanitize unescaped newlines / tabs inside strings
+      parsed = JSON.parse(sanitizeJSON(extracted)) as { emails: EmailFromClaude[] };
+    } catch {
+      const snippet = rawText.slice(0, 300);
+      console.error(
+        `[generate-sequence] JSON parse failed. stop_reason=${stopReason} rawLen=${rawText.length} snippet=${snippet}`
+      );
+      throw new Error(
+        `Failed to parse Claude response (stop_reason=${stopReason}, rawLen=${rawText.length}). First 300 chars: ${snippet}`
+      );
+    }
   }
 
   const [sequence] = await db
