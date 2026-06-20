@@ -6,7 +6,8 @@ import { db } from "@/lib/db";
 import { teachers, voiceProfiles } from "@/lib/schema";
 import { extractJSON } from "@/lib/extract-json";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const SYSTEM_PROMPT = `You are a voice analyst. Analyse these 5 emails and extract a voice profile.
 Return ONLY valid JSON — no markdown, no explanation, no code fences.
@@ -66,12 +67,23 @@ export async function POST(req: Request) {
     .map((email, i) => `--- EMAIL ${i + 1} ---\n${email.trim()}`)
     .join("\n\n");
 
-  const { text: rawText } = await callClaude({
-    model: "claude-sonnet-4-6",
-    max_tokens: 2000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: emailContent }],
-  });
+  let rawText: string;
+  try {
+    const result = await callClaude({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: emailContent }],
+    });
+    rawText = result.text;
+  } catch (claudeErr) {
+    console.error("[voice/generate] Claude API error:", claudeErr);
+    const message = claudeErr instanceof Error ? claudeErr.message : String(claudeErr);
+    return NextResponse.json(
+      { error: `AI generation failed: ${message}` },
+      { status: 502 }
+    );
+  }
 
   let profileData: Record<string, unknown>;
   try {
@@ -80,7 +92,7 @@ export async function POST(req: Request) {
     console.error("[voice/generate] JSON parse error:", parseErr);
     console.error("[voice/generate] Raw Claude response:", rawText);
     return NextResponse.json(
-      { error: "Failed to parse Claude response", raw: rawText.slice(0, 500) },
+      { error: "Failed to parse AI response. Please try again." },
       { status: 500 }
     );
   }
