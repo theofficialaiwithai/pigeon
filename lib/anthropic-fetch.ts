@@ -18,7 +18,7 @@ export async function callClaude({
     method: "POST",
     headers: {
       "x-api-key": process.env.ANTHROPIC_API_KEY!,
-      "anthropic-version": "2025-01-01",
+      "anthropic-version": "2023-06-01",
       "content-type": "application/json",
     },
     body: JSON.stringify({ model, max_tokens, system, messages }),
