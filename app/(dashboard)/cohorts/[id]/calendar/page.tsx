@@ -37,7 +37,7 @@ export default async function CalendarPage({
     .from(emailSequences)
     .where(eq(emailSequences.cohortId, cohort.id))
     .limit(1);
-  if (!sequence) redirect(`/cohorts/${params.id}/voice`);
+  if (!sequence) redirect(`/voice-profile?from=${params.id}`);
 
   const emailRows = await db
     .select()

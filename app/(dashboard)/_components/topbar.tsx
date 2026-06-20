@@ -6,12 +6,12 @@ const TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/cohorts": "Cohorts",
   "/cohorts/new": "New Cohort",
+  "/voice-profile": "Voice Profile",
   "/settings": "Settings",
 };
 
 function deriveTitle(pathname: string): string {
   if (TITLES[pathname]) return TITLES[pathname];
-  if (pathname.endsWith("/voice")) return "Voice Profile";
   if (pathname.endsWith("/sequence")) return "Email Sequence";
   if (pathname.endsWith("/export")) return "Export to Kit";
   if (pathname.startsWith("/cohorts/")) return "Cohort Details";

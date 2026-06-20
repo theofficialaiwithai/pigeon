@@ -1,42 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { teachers, voiceProfiles } from "@/lib/schema";
-import {
-  VoicePageClient,
-  type VoiceProfileData,
-} from "./VoicePageClient";
+import { redirect } from "next/navigation";
 
-export default async function VoicePage({
+// Voice profile is now a top-level teacher resource at /voice-profile.
+// Any link that still points here is forwarded automatically.
+export default function VoicePageRedirect({
   params,
 }: {
   params: { id: string };
 }) {
-  const { userId } = await auth();
-
-  let initialProfile: VoiceProfileData | null = null;
-
-  if (userId) {
-    const [teacher] = await db
-      .select()
-      .from(teachers)
-      .where(eq(teachers.clerkUserId, userId))
-      .limit(1);
-
-    if (teacher) {
-      const [row] = await db
-        .select({ fullProfileJson: voiceProfiles.fullProfileJson })
-        .from(voiceProfiles)
-        .where(eq(voiceProfiles.teacherId, teacher.id))
-        .limit(1);
-
-      if (row?.fullProfileJson) {
-        initialProfile = row.fullProfileJson as VoiceProfileData;
-      }
-    }
-  }
-
-  return (
-    <VoicePageClient cohortId={params.id} initialProfile={initialProfile} />
-  );
+  redirect(`/voice-profile?from=${params.id}`);
 }

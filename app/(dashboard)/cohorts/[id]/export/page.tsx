@@ -103,7 +103,7 @@ export default async function ExportPage({
             Generate your email sequence first before exporting.
           </p>
           <Link
-            href={`/cohorts/${params.id}/voice`}
+            href={`/voice-profile?from=${params.id}`}
             className="inline-flex items-center rounded-lg bg-pigeon-primary px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
           >
             Go to Sequence →

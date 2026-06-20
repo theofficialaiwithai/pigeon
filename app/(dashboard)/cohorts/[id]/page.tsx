@@ -32,5 +32,5 @@ export default async function CohortPage({
     .where(eq(emailSequences.cohortId, cohort.id))
     .limit(1);
 
-  redirect(sequence ? `/cohorts/${params.id}/sequence` : `/cohorts/${params.id}/voice`);
+  redirect(sequence ? `/cohorts/${params.id}/sequence` : `/voice-profile?from=${params.id}`);
 }

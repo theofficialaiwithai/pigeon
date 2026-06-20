@@ -40,11 +40,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { cohortId, emails } = body as { cohortId: string; emails: string[] };
+  const { emails } = body as { emails: string[] };
 
-  if (!cohortId) {
-    return NextResponse.json({ error: "cohortId is required" }, { status: 400 });
-  }
   if (!Array.isArray(emails) || emails.length !== 5) {
     return NextResponse.json({ error: "Exactly 5 emails required" }, { status: 400 });
   }

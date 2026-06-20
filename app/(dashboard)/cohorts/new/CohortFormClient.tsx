@@ -251,7 +251,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
       const { cohortId, hasVoiceProfile } = await res.json();
 
       if (!hasVoiceProfile) {
-        router.push(`/cohorts/${cohortId}/voice`);
+        router.push(`/voice-profile?from=${cohortId}`);
         return;
       }
 
