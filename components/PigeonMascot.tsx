@@ -9,51 +9,43 @@ export function PigeonMascot({
   size = 48,
   variant = "default",
 }: PigeonMascotProps) {
-  const body = variant === "white" ? "#FFFFFF" : "#2D3282";
-  const eyeFill = variant === "white" ? "#2D3282" : "#FFFFFF";
+  const body = variant === "white" ? "#FFFFFF" : "#2E4158";
+  const accent = variant === "white" ? "rgba(255,255,255,0.65)" : "#E8C89A";
 
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 64 64"
+      viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      overflow="visible"
-      aria-label="Pigeon mascot"
+      aria-label="Pigeon logo"
       role="img"
     >
-      {/* Tail feathers — two overlapping triangles spread left */}
-      <polygon points="20,47 6,38 11,51" fill={body} />
-      <polygon points="20,47 5,45 10,56" fill={body} />
+      {/* Tail — wedge extending lower-left */}
+      <polygon points="25,64 2,50 9,73 20,71" fill={body} />
 
       {/* Body */}
-      <ellipse cx="32" cy="46" rx="16" ry="11" fill={body} />
+      <ellipse cx="46" cy="63" rx="26" ry="17" fill={body} />
 
-      {/* Neck — bridges head and body */}
-      <ellipse cx="40" cy="36" rx="9" ry="8" fill={body} />
+      {/* Neck */}
+      <ellipse cx="57" cy="48" rx="13" ry="11" fill={body} />
 
       {/* Head */}
-      <circle cx="44" cy="23" r="13" fill={body} />
+      <circle cx="62" cy="32" r="12" fill={body} />
 
-      {/* Wing accent — orange arc across the body */}
-      <path
-        d="M17 43 Q28 33 42 41"
-        stroke="#F97316"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
+      {/* Beak */}
+      <polygon points="72,29 80,32 72,35" fill={body} />
 
-      {/* Beak — orange triangle pointing right */}
-      <polygon points="57,23 65,20 57,17" fill="#F97316" />
+      {/* Eye */}
+      <circle cx="66" cy="27" r="2.5" fill={accent} />
 
-      {/* Eye — single dot */}
-      <circle cx="50" cy="20" r="3" fill={eyeFill} />
+      {/* Wing — beige V/envelope chevron */}
+      <polygon points="18,58 35,72 60,54" fill={accent} />
 
       {/* Feet */}
       <polyline
-        points="29,57 27,63 22,63"
+        points="40,80 37,87 29,87"
         stroke={body}
         strokeWidth="2.5"
         strokeLinecap="round"
@@ -61,7 +53,7 @@ export function PigeonMascot({
         fill="none"
       />
       <polyline
-        points="36,57 34,63 29,63"
+        points="49,80 46,87 38,87"
         stroke={body}
         strokeWidth="2.5"
         strokeLinecap="round"
@@ -69,22 +61,22 @@ export function PigeonMascot({
         fill="none"
       />
 
-      {/* Flying pose: small envelope carried below the beak */}
+      {/* Flying pose: envelope carried in beak */}
       {pose === "flying" && (
         <g>
           <rect
-            x="59"
+            x="84"
             y="27"
             width="16"
             height="11"
             rx="1.5"
             fill="white"
-            stroke="#F97316"
+            stroke={accent}
             strokeWidth="1.5"
           />
           <polyline
-            points="59,27 67,34 75,27"
-            stroke="#F97316"
+            points="84,27 92,34 100,27"
+            stroke={accent}
             strokeWidth="1.5"
             strokeLinejoin="round"
             fill="none"
