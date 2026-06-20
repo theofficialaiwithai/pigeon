@@ -245,12 +245,15 @@ function EmailCard({
           body={htmlToText(email.bodyHtml)}
         />
         {!approved && (
-          <div className="mt-3 border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
-            <BodyEditor
-              key={email.id + (isRegenerating ? "-loading" : "")}
-              initialHtml={email.bodyHtml}
-              onChange={(html) => onChange("bodyHtml", html)}
-            />
+          <div className="mt-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-pigeon-ink-muted mb-1.5">Edit Body</p>
+            <div className="border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
+              <BodyEditor
+                key={email.id + (isRegenerating ? "-loading" : "")}
+                initialHtml={email.bodyHtml}
+                onChange={(html) => onChange("bodyHtml", html)}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -371,12 +374,15 @@ function FinalCallCard({
           body={htmlToText(activeVariant.bodyHtml)}
         />
         {!approved && (
-          <div className="border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
-            <BodyEditor
-              key={activeVariant.id + (isRegenerating ? "-loading" : "")}
-              initialHtml={activeVariant.bodyHtml}
-              onChange={(html) => onVariantChange(activeVariant.id, "bodyHtml", html)}
-            />
+          <div className="mt-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-pigeon-ink-muted mb-1.5">Edit Body</p>
+            <div className="border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-32">
+              <BodyEditor
+                key={activeVariant.id + (isRegenerating ? "-loading" : "")}
+                initialHtml={activeVariant.bodyHtml}
+                onChange={(html) => onVariantChange(activeVariant.id, "bodyHtml", html)}
+              />
+            </div>
           </div>
         )}
       </div>
