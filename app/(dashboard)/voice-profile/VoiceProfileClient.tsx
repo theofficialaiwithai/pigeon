@@ -101,6 +101,14 @@ function VoiceForm({ onSuccess }: { onSuccess: (data: VoiceProfileData) => void 
       }
       const data = await res.json();
       onSuccess(data.profileData as VoiceProfileData);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      pendo?.track("voice_profile_generated", {
+        cohort_id: urlParams.get("from") ?? null,
+        email_count: emailTexts.length,
+        total_word_count: wordCounts.reduce((a, b) => a + b, 0),
+        source_page: window.location.pathname,
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {

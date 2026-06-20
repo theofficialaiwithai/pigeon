@@ -537,6 +537,20 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
       });
       if (!res.ok) throw new Error();
       updateEmail(email.id, { approvalStatus: "approved" });
+
+      const approvedAfter = emailList.filter((e) => e.approvalStatus === "approved").length + 1;
+      pendo?.track("email_approved", {
+        email_id: email.id,
+        email_type: email.emailType,
+        email_position: email.position,
+        cohort_id: cohortId,
+        has_variant_selected: !!fcSelectedVariantId,
+        selected_variant_type: email.emailType === "final_call"
+          ? email.variants.find((v) => v.id === fcSelectedVariantId)?.variantType ?? null
+          : null,
+        approved_count_after: approvedAfter,
+        total_email_count: emailList.length,
+      });
     } catch {
       toast.error("Failed to approve email");
     }
@@ -594,6 +608,15 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
 
       updateEmail(email.id, patch);
       toast.success("Email regenerated");
+
+      pendo?.track("email_regenerated", {
+        email_id: email.id,
+        email_type: email.emailType,
+        email_position: email.position,
+        cohort_id: cohortId,
+        is_final_call: email.emailType === "final_call",
+        previous_approval_status: email.approvalStatus,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Regeneration failed";
       setRegenerateErrors((prev) => { const m = new Map(prev); m.set(email.id, message); return m; });
@@ -625,6 +648,15 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
       );
       setEmailList((prev) => prev.map((e) => ({ ...e, approvalStatus: "approved" })));
       setConfirmOpen(false);
+
+      pendo?.track("all_emails_approved", {
+        cohort_id: cohortId,
+        program_name: programName,
+        email_count: emailList.length,
+        previously_approved_count: approvedCount,
+        has_final_call_variant_selected: !!fcSelectedVariantId,
+      });
+
       router.push(`/cohorts/${cohortId}/calendar`);
     } catch {
       toast.error("Failed to approve all emails");

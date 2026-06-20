@@ -32,6 +32,13 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
         setSaveError(data.error ?? "Failed to save");
       } else {
         setSaved(true);
+
+        try {
+          const domain = new URL(webhookUrl.trim()).hostname;
+          pendo?.track("webhook_connected", { webhook_domain: domain });
+        } catch {
+          pendo?.track("webhook_connected", { webhook_domain: null });
+        }
       }
     } catch {
       setSaveError("Network error — please try again");
@@ -48,6 +55,8 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
       await fetch("/api/integrations/webhook/disconnect", { method: "POST" });
       setSaved(false);
       setWebhookUrl("");
+
+      pendo?.track("webhook_disconnected");
     } catch {
       setSaveError("Failed to disconnect");
     } finally {
@@ -66,6 +75,11 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
       } else {
         setTestResult({ ok: true, message: "Test payload sent! Check your Zap / Scenario trigger." });
       }
+
+      pendo?.track("webhook_test_sent", {
+        test_success: res.ok && !!data.ok,
+        webhook_http_status: res.status,
+      });
     } catch {
       setTestResult({ ok: false, message: "Network error — please try again" });
     } finally {

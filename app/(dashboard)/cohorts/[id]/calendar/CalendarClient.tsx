@@ -181,7 +181,7 @@ function buildOutlookUrl(email: EmailState): string {
   return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
 }
 
-function downloadAllIcs(emails: EmailState[], programName: string) {
+function downloadAllIcs(emails: EmailState[], programName: string, cohortId: string) {
   const dtstamp = toIcsDate(new Date().toISOString());
   const vevents = emails
     .filter((e) => !!e.scheduledSendAt)
@@ -228,6 +228,13 @@ function downloadAllIcs(emails: EmailState[], programName: string) {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  pendo?.track("calendar_exported_ics", {
+    cohort_id: cohortId,
+    program_name: programName,
+    email_count: emails.length,
+    emails_with_dates_count: vevents.length,
+  });
 }
 
 function gapDays(a: string | null, b: string | null): number | null {
@@ -310,6 +317,15 @@ export function CalendarClient({
       );
       setDialogOpen(false);
       toast.success("Send date updated");
+
+      pendo?.track("email_send_date_changed", {
+        email_id: editingEmail.id,
+        email_type: editingEmail.emailType,
+        email_position: editingEmail.position,
+        cohort_id: cohortId,
+        new_send_date: iso,
+        previous_send_date: editingEmail.scheduledSendAt,
+      });
     } catch {
       toast.error("Failed to save date");
     } finally {
@@ -346,7 +362,7 @@ export function CalendarClient({
                 ? "Set at least one send date first"
                 : "Download all scheduled emails as a single .ics file"
             }
-            onClick={() => downloadAllIcs(emailList, programName)}
+            onClick={() => downloadAllIcs(emailList, programName, cohortId)}
           >
             Export Full Launch Calendar
           </Button>

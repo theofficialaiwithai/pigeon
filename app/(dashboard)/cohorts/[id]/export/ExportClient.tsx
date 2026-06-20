@@ -86,6 +86,19 @@ export function ExportClient({
         setResults(data.results ?? []);
         if (data.allSucceeded) setDone(true);
       }
+
+      const exportResults = data.results ?? [];
+      const successCount = exportResults.filter((r: ExportResult) => r.success).length;
+      const failureCount = exportResults.filter((r: ExportResult) => !r.success).length;
+      pendo?.track("emails_exported_to_kit", {
+        cohort_id: cohortId,
+        program_name: programName,
+        email_count: emails.length,
+        success_count: successCount,
+        failure_count: failureCount,
+        all_succeeded: !!data.allSucceeded,
+        is_re_export: initialExported || initialPartial,
+      });
     } catch {
       setResults([{ emailId: "__global__", success: false, error: "Network error — please try again" }]);
     } finally {
@@ -111,6 +124,14 @@ export function ExportClient({
           message: `Sent ${data.emailCount ?? emails.length} emails to your webhook. Check your Zap or Scenario to confirm.`,
         });
       }
+
+      pendo?.track("emails_exported_via_webhook", {
+        cohort_id: cohortId,
+        program_name: programName,
+        email_count: data.emailCount ?? emails.length,
+        webhook_success: res.ok && !!data.ok,
+        webhook_http_status: res.status,
+      });
     } catch {
       setWebhookResult({ ok: false, message: "Network error — please try again" });
     } finally {

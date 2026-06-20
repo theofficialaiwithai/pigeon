@@ -94,6 +94,12 @@ function KajabiBanner({
     onImport(p);
     setImported(p.name);
     setDialogOpen(false);
+
+    pendo?.track("kajabi_product_imported", {
+      kajabi_product_id: p.id,
+      kajabi_product_name: p.name,
+      has_start_date: !!p.startDate,
+    });
   }
 
   return (
@@ -249,6 +255,19 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
       }
 
       const { cohortId, hasVoiceProfile } = await res.json();
+
+      pendo?.track("cohort_created", {
+        cohort_id: cohortId,
+        program_name: form.programName.trim(),
+        cart_open_date: form.cartOpenDate,
+        cart_close_date: form.cartCloseDate,
+        cohort_start_date: form.cohortStartDate,
+        seat_count: form.seatCount ? parseInt(form.seatCount) : null,
+        price_usd: form.priceUsd ? parseInt(form.priceUsd) : null,
+        has_kajabi_product_id: !!kajabiProductId,
+        has_voice_profile: hasVoiceProfile,
+        curriculum_word_count: wc,
+      });
 
       if (!hasVoiceProfile) {
         router.push(`/voice-profile?from=${cohortId}`);
