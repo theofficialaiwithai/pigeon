@@ -204,6 +204,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [kajabiProductId, setKajabiProductId] = useState<string | null>(null);
 
   function set(key: keyof FormData, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -211,6 +212,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
   }
 
   function handleKajabiImport(product: KajabiProduct) {
+    setKajabiProductId(product.id);
     setForm((prev) => ({
       ...prev,
       programName: product.name,
@@ -237,6 +239,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
           cohort_start_date: form.cohortStartDate,
           seat_count: form.seatCount ? parseInt(form.seatCount) : undefined,
           price_usd: form.priceUsd ? parseInt(form.priceUsd) : undefined,
+          kajabi_product_id: kajabiProductId ?? undefined,
         }),
       });
 

@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { platformConnections, teachers } from "@/lib/schema";
+import { KajabiConnectCard } from "./KajabiConnectCard";
 import { KitConnectCard } from "./KitConnectCard";
 
 const TIMEZONES = [
@@ -28,16 +29,23 @@ const TIMEZONES = [
 
 function Section({
   title,
+  description,
   children,
 }: {
   title: string;
+  description?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="bg-white rounded-xl border border-pigeon-border p-6 space-y-5">
-      <h2 className="font-heading text-base font-semibold text-pigeon-primary">
-        {title}
-      </h2>
+      <div>
+        <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+          {title}
+        </h2>
+        {description && (
+          <p className="mt-0.5 text-sm text-pigeon-muted">{description}</p>
+        )}
+      </div>
       {children}
     </section>
   );
@@ -100,19 +108,35 @@ export default async function SettingsPage() {
     process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL
   );
 
-  const kitConn = teacher
-    ? await db
-        .select({ accountName: platformConnections.accountName })
-        .from(platformConnections)
-        .where(
-          and(
-            eq(platformConnections.teacherId, teacher.id),
-            eq(platformConnections.platform, "convertkit")
+  // Fetch both platform connections in parallel
+  const [kajabiConn, kitConn] = await Promise.all([
+    teacher
+      ? db
+          .select({ accountName: platformConnections.accountName })
+          .from(platformConnections)
+          .where(
+            and(
+              eq(platformConnections.teacherId, teacher.id),
+              eq(platformConnections.platform, "kajabi")
+            )
           )
-        )
-        .limit(1)
-        .then((rows) => rows[0] ?? null)
-    : null;
+          .limit(1)
+          .then((rows) => rows[0] ?? null)
+      : Promise.resolve(null),
+    teacher
+      ? db
+          .select({ accountName: platformConnections.accountName })
+          .from(platformConnections)
+          .where(
+            and(
+              eq(platformConnections.teacherId, teacher.id),
+              eq(platformConnections.platform, "convertkit")
+            )
+          )
+          .limit(1)
+          .then((rows) => rows[0] ?? null)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -173,22 +197,19 @@ export default async function SettingsPage() {
         )}
       </Section>
 
-      {/* Kit */}
-      <Section title="Kit (ConvertKit) Integration">
-        <Row label="Kit API Key">
-          <KitConnectCard initialAccountName={kitConn?.accountName ?? null} />
+      {/* Kajabi — featured first */}
+      <Section
+        title="Connect Kajabi"
+        description="Import your programs automatically. Pigeon reads your Kajabi product library and fills your cohort details for you."
+      >
+        <Row label="API Credentials">
+          <KajabiConnectCard initialAccountName={kajabiConn?.accountName ?? null} />
         </Row>
-      </Section>
-
-      {/* Kajabi */}
-      <Section title="Kajabi Integration">
         <Row label="Enrollment webhook">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-lg bg-gray-50 border border-pigeon-border px-3 py-2 text-xs font-mono text-gray-700 break-all">
-                {webhookUrl}
-              </code>
-            </div>
+            <code className="block rounded-lg bg-gray-50 border border-pigeon-border px-3 py-2 text-xs font-mono text-gray-700 break-all">
+              {webhookUrl}
+            </code>
             <p className="text-xs text-pigeon-muted leading-relaxed">
               In Kajabi: <strong>Settings → Integrations → Webhooks</strong>.
               Add this URL and select the <strong>Purchase</strong> event. Pigeon
@@ -196,6 +217,13 @@ export default async function SettingsPage() {
               you if one already exists.
             </p>
           </div>
+        </Row>
+      </Section>
+
+      {/* Kit */}
+      <Section title="Kit (ConvertKit) Integration">
+        <Row label="Kit API Key">
+          <KitConnectCard initialAccountName={kitConn?.accountName ?? null} />
         </Row>
       </Section>
     </div>

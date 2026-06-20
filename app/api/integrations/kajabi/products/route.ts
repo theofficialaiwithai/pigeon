@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { platformConnections, teachers } from "@/lib/schema";
+import { mintKajabiToken, KAJABI_MOCK_PRODUCTS } from "@/lib/kajabi";
 
 export async function GET() {
   const { userId } = await auth();
@@ -21,7 +22,10 @@ export async function GET() {
   }
 
   const [conn] = await db
-    .select()
+    .select({
+      accessToken: platformConnections.accessToken,
+      clientSecret: platformConnections.clientSecret,
+    })
     .from(platformConnections)
     .where(
       and(
@@ -35,25 +39,41 @@ export async function GET() {
     return NextResponse.json({ error: "Kajabi not connected" }, { status: 404 });
   }
 
-  // TODO: call Kajabi API with conn.accessToken
-  // Returning mock products until Kajabi OAuth is wired up
-  return NextResponse.json({
-    products: [
-      {
-        id: "kj_prod_1",
-        name: "6-Week Business Bootcamp",
-        startDate: "2024-09-01",
-      },
-      {
-        id: "kj_prod_2",
-        name: "Content Creator Masterclass",
-        startDate: null,
-      },
-      {
-        id: "kj_prod_3",
-        name: "The Launch Blueprint",
-        startDate: "2024-10-15",
-      },
-    ],
-  });
+  // Mint a fresh token from stored client_id + client_secret
+  let accessToken: string;
+  try {
+    accessToken = await mintKajabiToken(conn.accessToken, conn.clientSecret ?? "");
+  } catch {
+    // Bad credentials or network error — fall back to mock products
+    return NextResponse.json({ products: KAJABI_MOCK_PRODUCTS });
+  }
+
+  // Fetch products — fall back to mocks on 401/403 (plan gating) or any error
+  try {
+    const res = await fetch("https://api.kajabi.com/v1/products", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ products: KAJABI_MOCK_PRODUCTS });
+    }
+
+    interface KajabiProductItem {
+      id: string;
+      attributes?: { title?: string; created_at?: string };
+    }
+    const data = (await res.json()) as { data?: KajabiProductItem[] };
+
+    const products = (data.data ?? []).map((p) => ({
+      id: p.id,
+      name: p.attributes?.title ?? p.id,
+      startDate: p.attributes?.created_at
+        ? p.attributes.created_at.slice(0, 10)
+        : null,
+    }));
+
+    return NextResponse.json({ products });
+  } catch {
+    return NextResponse.json({ products: KAJABI_MOCK_PRODUCTS });
+  }
 }

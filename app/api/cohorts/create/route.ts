@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     cohort_start_date,
     seat_count,
     price_usd,
+    kajabi_product_id,
   } = body as {
     program_name: string;
     curriculum_summary: string;
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
     cohort_start_date: string;
     seat_count?: number;
     price_usd?: number;
+    kajabi_product_id?: string;
   };
 
   if (!program_name?.trim()) {
@@ -76,6 +78,7 @@ export async function POST(req: Request) {
       cohortStartDate: cohort_start_date,
       seatCount: seat_count ?? null,
       priceUsd: price_usd ?? null,
+      kajabiProductId: kajabi_product_id ?? null,
       status: "draft",
     })
     .returning();

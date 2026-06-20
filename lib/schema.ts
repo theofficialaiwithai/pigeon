@@ -119,7 +119,10 @@ export const platformConnections = pgTable(
       .notNull()
       .references(() => teachers.id, { onDelete: "cascade" }),
     platform: text("platform").notNull(),
+    // Kit rows: API key. Kajabi rows: OAuth client_id.
     accessToken: text("access_token").notNull(),
+    // Kajabi only: OAuth client_secret. Null for Kit rows.
+    clientSecret: text("client_secret"),
     accountName: text("account_name"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
