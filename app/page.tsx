@@ -9,6 +9,7 @@ import {
   VoiceFingerprintVisual,
   ExportReadyVisual,
 } from "@/components/landing/how-it-works-visuals";
+import FAQSection from "@/components/landing/faq-section";
 
 export default async function LandingPage() {
   const { userId } = await auth();
@@ -277,6 +278,11 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
+      </RevealSection>
+
+      {/* FAQ */}
+      <RevealSection>
+        <FAQSection />
       </RevealSection>
 
       {/* Footer */}
