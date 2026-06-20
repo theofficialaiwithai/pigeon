@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { Logo } from "@/components/logo";
+import { RevealSection } from "@/components/landing/reveal-section";
+import { StatsBar } from "@/components/landing/stats-bar";
 
 export default async function LandingPage() {
   const { userId } = await auth();
@@ -69,171 +71,185 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* Right: product mockup */}
-          <div className="rounded-2xl border border-pigeon-warm-rule bg-white shadow-lg overflow-hidden">
-            <div className="flex items-center justify-between border-b border-pigeon-warm-rule bg-pigeon-cream px-4 py-3">
-              <span className="font-heading text-xs font-bold uppercase tracking-wide text-pigeon-ink">
-                The Mindset Shift Accelerator
-              </span>
-              <span className="text-xs font-medium text-pigeon-ink-muted">9 of 9 approved</span>
+          {/* Right: product mockup + floating chips */}
+          <div className="relative">
+            {/* Floating chip — top-right, sage */}
+            <div
+              className="chip-float pointer-events-none absolute -right-4 -top-5 z-10 hidden items-center gap-1.5 rounded-full border border-pigeon-sage/25 bg-white px-3 py-1.5 text-xs font-semibold text-pigeon-sage shadow-md md:flex"
+            >
+              ✓ Voice-matched
             </div>
-            {[
-              { pos: 1, type: "Pre-Launch Warmup", subject: "I want to ask you something." },
-              { pos: 2, type: "List Primer", subject: "Who this is for (and who it isn't)." },
-              { pos: 3, type: "Cart Open", subject: "The door opens today." },
-              { pos: 4, type: "Curriculum Deep Dive", subject: "What actually happens inside." },
-              { pos: 5, type: "Student Story", subject: "Amara went quiet in every meeting. Then she didn't." },
-            ].map((email) => (
-              <div
-                key={email.pos}
-                className="flex items-center gap-3 border-b border-pigeon-warm-rule px-4 py-3 last:border-0"
-              >
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pigeon-ink text-xs font-bold text-white">
-                  {email.pos}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-pigeon-ink-muted">
-                    {email.type}
-                  </div>
-                  <div className="truncate text-sm font-medium text-gray-800">
-                    {email.subject}
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">
-                  ✓
+            {/* Floating chip — bottom-left, sienna */}
+            <div
+              className="chip-float pointer-events-none absolute -bottom-5 -left-4 z-10 hidden items-center gap-1.5 rounded-full border border-pigeon-sienna/25 bg-white px-3 py-1.5 text-xs font-semibold text-pigeon-sienna shadow-md md:flex"
+              style={{ animationDelay: "1.5s" }}
+            >
+              ⚡ 12s to draft
+            </div>
+
+            <div className="rounded-2xl border border-pigeon-warm-rule bg-white shadow-lg overflow-hidden">
+              <div className="flex items-center justify-between border-b border-pigeon-warm-rule bg-pigeon-cream px-4 py-3">
+                <span className="font-heading text-xs font-bold uppercase tracking-wide text-pigeon-ink">
+                  The Mindset Shift Accelerator
                 </span>
+                <span className="text-xs font-medium text-pigeon-ink-muted">9 of 9 approved</span>
               </div>
-            ))}
-            <div className="flex items-center justify-between bg-pigeon-cream px-4 py-3">
-              <span className="text-xs text-pigeon-ink-muted">+ 4 more</span>
-              <span className="text-xs font-bold text-pigeon-sienna">Export to Kit →</span>
+              {[
+                { pos: 1, type: "Pre-Launch Warmup", subject: "I want to ask you something." },
+                { pos: 2, type: "List Primer", subject: "Who this is for (and who it isn't)." },
+                { pos: 3, type: "Cart Open", subject: "The door opens today." },
+                { pos: 4, type: "Curriculum Deep Dive", subject: "What actually happens inside." },
+                { pos: 5, type: "Student Story", subject: "Amara went quiet in every meeting. Then she didn't." },
+              ].map((email) => (
+                <div
+                  key={email.pos}
+                  className="flex items-center gap-3 border-b border-pigeon-warm-rule px-4 py-3 last:border-0"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pigeon-ink text-xs font-bold text-white">
+                    {email.pos}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-semibold uppercase tracking-wide text-pigeon-ink-muted">
+                      {email.type}
+                    </div>
+                    <div className="truncate text-sm font-medium text-gray-800">
+                      {email.subject}
+                    </div>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">
+                    ✓
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between bg-pigeon-cream px-4 py-3">
+                <span className="text-xs text-pigeon-ink-muted">+ 4 more</span>
+                <span className="text-xs font-bold text-pigeon-sienna">Export to Kit →</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section className="border-y border-pigeon-warm-rule bg-pigeon-ink py-8">
-        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 px-6 text-center">
-          {[
-            { stat: "9", label: "emails per sequence" },
-            { stat: "12s", label: "average generation time" },
-            { stat: "1-click", label: "export to ConvertKit" },
-          ].map(({ stat, label }) => (
-            <div key={stat}>
-              <div className="font-heading text-3xl font-extrabold text-white">{stat}</div>
-              <div className="mt-1 text-sm font-medium text-white/70">{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Stats bar — client component handles reveal + count-up */}
+      <StatsBar />
 
       {/* The problem */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
-          Writing launch emails is the worst part.
-        </h2>
-        <p className="mt-5 text-lg leading-relaxed text-pigeon-ink-muted">
-          You spend more time staring at a blank Notion doc than actually selling.
-          Then you hire a copywriter, spend $2k, and get back something that
-          doesn&apos;t sound like you. Then you rewrite it anyway.
-        </p>
-        <p className="mt-4 text-lg font-semibold text-pigeon-ink">
-          There&apos;s a better way.
-        </p>
-      </section>
+      <RevealSection>
+        <section className="mx-auto max-w-3xl px-6 py-20 text-center">
+          <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
+            Writing launch emails is the worst part.
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-pigeon-ink-muted">
+            You spend more time staring at a blank Notion doc than actually selling.
+            Then you hire a copywriter, spend $2k, and get back something that
+            doesn&apos;t sound like you. Then you rewrite it anyway.
+          </p>
+          <p className="mt-4 text-lg font-semibold text-pigeon-ink">
+            There&apos;s a better way.
+          </p>
+        </section>
+      </RevealSection>
 
       {/* How it works */}
-      <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="mb-14 text-center font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
-            How it works
-          </h2>
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-            {[
-              {
-                step: "1",
-                title: "Tell Pigeon about your cohort",
-                body: "Program name, curriculum, cart open/close dates, cohort start. Pigeon auto-times every email to your calendar.",
-              },
-              {
-                step: "2",
-                title: "Paste 5 of your past emails",
-                body: "Any emails — launches, newsletters, updates. Pigeon reads how you write, not what you write, to build your Voice Fingerprint.",
-              },
-              {
-                step: "3",
-                title: "Review, approve, export",
-                body: "Get a 9-email sequence pre-timed to your calendar. Edit anything, approve what you love, export directly to ConvertKit.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="flex gap-4">
-                <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pigeon-ink font-heading text-xl font-extrabold text-white">
-                  {item.step}
+      <RevealSection>
+        <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="mb-14 text-center font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
+              How it works
+            </h2>
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+              {[
+                {
+                  step: "1",
+                  title: "Tell Pigeon about your cohort",
+                  body: "Program name, curriculum, cart open/close dates, cohort start. Pigeon auto-times every email to your calendar.",
+                },
+                {
+                  step: "2",
+                  title: "Paste 5 of your past emails",
+                  body: "Any emails — launches, newsletters, updates. Pigeon reads how you write, not what you write, to build your Voice Fingerprint.",
+                },
+                {
+                  step: "3",
+                  title: "Review, approve, export",
+                  body: "Get a 9-email sequence pre-timed to your calendar. Edit anything, approve what you love, export directly to ConvertKit.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="flex gap-4 rounded-xl p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+                >
+                  <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pigeon-ink font-heading text-xl font-extrabold text-white">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-lg font-bold text-pigeon-ink">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">{item.body}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading text-lg font-bold text-pigeon-ink">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">{item.body}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </RevealSection>
 
       {/* Demo CTA */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
-          See it before you commit.
-        </h2>
-        <p className="mt-4 text-lg text-pigeon-ink-muted">
-          Jordan&apos;s full 9-email sequence for &ldquo;The Mindset Shift Accelerator&rdquo; is live and explorable — no sign-in.
-        </p>
-        <Link
-          href="/demo"
-          className="mt-8 inline-flex items-center justify-center rounded-xl bg-pigeon-sienna px-8 py-4 text-base font-bold text-white shadow-md hover:bg-orange-600 transition-colors"
-        >
-          Explore Jordan&apos;s Demo Sequence →
-        </Link>
-      </section>
+      <RevealSection>
+        <section className="mx-auto max-w-3xl px-6 py-20 text-center">
+          <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
+            See it before you commit.
+          </h2>
+          <p className="mt-4 text-lg text-pigeon-ink-muted">
+            Jordan&apos;s full 9-email sequence for &ldquo;The Mindset Shift Accelerator&rdquo; is live and explorable — no sign-in.
+          </p>
+          <Link
+            href="/demo"
+            className="mt-8 inline-flex items-center justify-center rounded-xl bg-pigeon-sienna px-8 py-4 text-base font-bold text-white shadow-md hover:bg-orange-600 transition-colors"
+          >
+            Explore Jordan&apos;s Demo Sequence →
+          </Link>
+        </section>
+      </RevealSection>
 
       {/* Pricing */}
-      <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-20">
-        <div className="mx-auto max-w-2xl px-6 text-center">
-          <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink">
-            Simple, honest pricing.
-          </h2>
-          <p className="mt-3 text-pigeon-ink-muted">One plan. Everything included.</p>
-          <div className="mx-auto mt-10 max-w-sm rounded-2xl border border-pigeon-warm-rule bg-white p-8 shadow-sm">
-            <div className="font-heading text-5xl font-extrabold text-pigeon-ink">
-              $29
-              <span className="text-xl font-semibold text-pigeon-ink-muted">/mo</span>
+      <RevealSection>
+        <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-20">
+          <div className="mx-auto max-w-2xl px-6 text-center">
+            <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink">
+              Simple, honest pricing.
+            </h2>
+            <p className="mt-3 text-pigeon-ink-muted">One plan. Everything included.</p>
+            <div className="mx-auto mt-10 max-w-sm rounded-2xl border border-pigeon-warm-rule bg-white p-8 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+              <div className="font-heading text-5xl font-extrabold text-pigeon-ink">
+                $29
+                <span className="text-xl font-semibold text-pigeon-ink-muted">/mo</span>
+              </div>
+              <p className="mt-2 text-sm text-pigeon-ink-muted">Unlimited cohorts and sequences</p>
+              <ul className="mt-6 space-y-3 text-left text-sm text-gray-700">
+                {[
+                  "Unlimited email sequences",
+                  "Voice Fingerprint analysis",
+                  "ConvertKit (Kit) export",
+                  "Kajabi product import",
+                  "Daily digest reminders",
+                  "Launch Calendar view",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="font-bold text-pigeon-sienna">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/sign-up"
+                className="mt-8 block rounded-xl bg-pigeon-ink py-3 text-center text-sm font-bold text-white hover:bg-pigeon-ink/90 transition-colors"
+              >
+                Start Free →
+              </Link>
             </div>
-            <p className="mt-2 text-sm text-pigeon-ink-muted">Unlimited cohorts and sequences</p>
-            <ul className="mt-6 space-y-3 text-left text-sm text-gray-700">
-              {[
-                "Unlimited email sequences",
-                "Voice Fingerprint analysis",
-                "ConvertKit (Kit) export",
-                "Kajabi product import",
-                "Daily digest reminders",
-                "Launch Calendar view",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2">
-                  <span className="font-bold text-pigeon-sienna">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/sign-up"
-              className="mt-8 block rounded-xl bg-pigeon-ink py-3 text-center text-sm font-bold text-white hover:bg-pigeon-ink/90 transition-colors"
-            >
-              Start Free →
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      </RevealSection>
 
       {/* Footer */}
       <footer className="border-t border-pigeon-warm-rule py-8">

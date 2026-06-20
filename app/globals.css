@@ -56,3 +56,35 @@ body {
 @keyframes draw-check {
   to { stroke-dashoffset: 0; }
 }
+
+/* ── Scroll-reveal ─────────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Floating accent chips ─────────────────────────────────────────────────── */
+@keyframes float-chip {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+.chip-float {
+  animation: float-chip 4s ease-in-out infinite;
+}
+
+/* ── Reduced-motion overrides ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .chip-float {
+    animation: none !important;
+  }
+}
