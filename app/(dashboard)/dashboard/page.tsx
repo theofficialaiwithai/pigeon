@@ -4,16 +4,18 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { cohorts, teachers } from "@/lib/schema";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { PigeonMascot } from "@/components/PigeonMascot";
 import { cn } from "@/lib/utils";
 import { TeacherSync } from "./sync";
 
-const STATUS_STYLES: Record<string, { label: string; className: string }> = {
-  draft: { label: "Draft", className: "bg-gray-100 text-gray-600" },
-  ready: { label: "Sequence Ready", className: "bg-blue-100 text-blue-700" },
-  approved: { label: "Approved", className: "bg-green-100 text-green-700" },
-  exported: { label: "Exported", className: "bg-purple-100 text-purple-700" },
+type BadgeVariant = "tag-ink" | "tag-gold" | "tag-sage";
+const STATUS_STYLES: Record<string, { label: string; badgeVariant: BadgeVariant }> = {
+  draft:    { label: "Draft",           badgeVariant: "tag-ink" },
+  ready:    { label: "Sequence Ready",  badgeVariant: "tag-gold" },
+  approved: { label: "Approved",        badgeVariant: "tag-sage" },
+  exported: { label: "Exported",        badgeVariant: "tag-sage" },
 };
 
 function fmtDate(dateStr: string | null): string {
@@ -79,14 +81,9 @@ export default async function DashboardPage() {
                     <h3 className="font-heading text-lg font-semibold leading-snug text-gray-900">
                       {cohort.programName}
                     </h3>
-                    <span
-                      className={cn(
-                        "inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                        status.className
-                      )}
-                    >
+                    <Badge variant={status.badgeVariant}>
                       {status.label}
-                    </span>
+                    </Badge>
                   </div>
                   <p className="mt-2 font-sans text-sm text-pigeon-ink-muted">
                     Cart open {fmtDate(cohort.cartOpenDate)} → closes{" "}

@@ -19,6 +19,19 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // ── Status / label pills ──────────────────────────────────────────────
+        "tag-sienna":
+          "bg-[var(--sienna-lt)] text-[var(--sienna)] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
+        "tag-sage":
+          "bg-[var(--sage-lt)] text-[var(--sage)] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
+        "tag-ink":
+          "bg-[var(--parchment)] text-[var(--ink-muted)] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
+        "tag-white":
+          "bg-white/20 text-[rgba(250,247,242,0.9)] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
+        "tag-gold":
+          "bg-[#FFF7E0] text-[#6B4E00] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
+        "tag-red":
+          "bg-[#FDF0EE] text-[#8B2010] text-[9.5px] font-bold uppercase tracking-[0.1em] px-2 py-[3px]",
       },
     },
     defaultVariants: {

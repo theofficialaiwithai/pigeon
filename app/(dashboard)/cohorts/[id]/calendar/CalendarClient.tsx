@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ChevronDownIcon, Loader2Icon, PauseIcon, PlayIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -250,16 +251,8 @@ function gapDays(a: string | null, b: string | null): number | null {
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "approved")
-    return (
-      <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-        Approved
-      </span>
-    );
-  return (
-    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-      Draft
-    </span>
-  );
+    return <Badge variant="tag-sage">Approved</Badge>;
+  return <Badge variant="tag-ink">Draft</Badge>;
 }
 
 function GapLabel({ days }: { days: number | null }) {
@@ -283,22 +276,10 @@ function GapLabel({ days }: { days: number | null }) {
 
 function SendLogStatusBadge({ status }: { status: string }) {
   if (status === "success")
-    return (
-      <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-        Success
-      </span>
-    );
+    return <Badge variant="tag-sage">Sent</Badge>;
   if (status === "failed")
-    return (
-      <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-        Failed
-      </span>
-    );
-  return (
-    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-      Skipped
-    </span>
-  );
+    return <Badge variant="tag-red">Failed</Badge>;
+  return <Badge variant="tag-ink">Skipped</Badge>;
 }
 
 export function CalendarClient({

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CheckIcon, ChevronLeftIcon, Loader2Icon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import {
@@ -147,25 +148,11 @@ function BodyEditor({
 // ─── StatusBadge ──────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === "approved") {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-pigeon-sage/10 text-pigeon-sage">
-        <CheckIcon className="w-3 h-3" /> Approved
-      </span>
-    );
-  }
-  if (status === "edited") {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
-        Edited
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
-      Draft
-    </span>
-  );
+  if (status === "approved")
+    return <Badge variant="tag-sage">Approved</Badge>;
+  if (status === "edited")
+    return <Badge variant="tag-gold">Edited</Badge>;
+  return <Badge variant="tag-ink">Draft</Badge>;
 }
 
 // ─── RegenerateButton ─────────────────────────────────────────────────────────
