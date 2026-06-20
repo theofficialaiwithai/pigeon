@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { cohorts, emailSequences, emails, teachers } from "@/lib/schema";
+import { cohorts, emailSequences, emails, sendLog, teachers } from "@/lib/schema";
 import { CalendarClient } from "./CalendarClient";
 
 function asDateStr(v: unknown): string {
@@ -39,11 +39,28 @@ export default async function CalendarPage({
     .limit(1);
   if (!sequence) redirect(`/voice-profile?from=${params.id}`);
 
-  const emailRows = await db
-    .select()
-    .from(emails)
-    .where(eq(emails.sequenceId, sequence.id))
-    .orderBy(emails.position);
+  // Fetch emails and send log in parallel
+  const [emailRows, logRows] = await Promise.all([
+    db
+      .select()
+      .from(emails)
+      .where(eq(emails.sequenceId, sequence.id))
+      .orderBy(emails.position),
+    db
+      .select({
+        id: sendLog.id,
+        emailId: sendLog.emailId,
+        sequencePosition: sendLog.sequencePosition,
+        esp: sendLog.esp,
+        status: sendLog.status,
+        errorMessage: sendLog.errorMessage,
+        sentAt: sendLog.sentAt,
+      })
+      .from(sendLog)
+      .where(eq(sendLog.cohortId, cohort.id))
+      .orderBy(desc(sendLog.sentAt))
+      .limit(50),
+  ]);
 
   const serializedEmails = emailRows.map((e) => ({
     id: e.id,
@@ -58,6 +75,17 @@ export default async function CalendarPage({
     approvalStatus: e.approvalStatus ?? "draft",
   }));
 
+  const serializedLogs = logRows.map((r) => ({
+    id: r.id,
+    emailId: r.emailId ?? null,
+    sequencePosition: r.sequencePosition ?? null,
+    esp: r.esp,
+    status: r.status,
+    errorMessage: r.errorMessage ?? null,
+    sentAt:
+      r.sentAt instanceof Date ? r.sentAt.toISOString() : String(r.sentAt),
+  }));
+
   return (
     <CalendarClient
       cohortId={params.id}
@@ -66,6 +94,8 @@ export default async function CalendarPage({
       cartCloseDate={cohort.cartCloseDate ? asDateStr(cohort.cartCloseDate) : null}
       cohortStartDate={cohort.cohortStartDate ? asDateStr(cohort.cohortStartDate) : null}
       initialEmails={serializedEmails}
+      initialSendStatus={cohort.sendStatus ?? "active"}
+      sendLogs={serializedLogs}
     />
   );
 }

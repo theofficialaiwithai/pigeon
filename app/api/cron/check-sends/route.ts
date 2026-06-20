@@ -1,6 +1,13 @@
 import { and, eq, isNull, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { cohorts, emailSequences, emails, teachers } from "@/lib/schema";
+import {
+  cohorts,
+  emailSequences,
+  emails,
+  platformConnections,
+  sendLog,
+  teachers,
+} from "@/lib/schema";
 import { sendNotification } from "@/lib/notifications";
 
 export const runtime = "nodejs";
@@ -13,17 +20,20 @@ export async function GET(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // Find approved emails whose scheduled time has passed but haven't been
-  // exported to Kit yet. These are overdue and the teacher may not know.
   const now = new Date();
 
-  const overdueEmails = await db
+  // Find all approved emails past their scheduled time that haven't been exported.
+  const dueRows = await db
     .select({
       emailId: emails.id,
+      emailPosition: emails.position,
       subjectLine: emails.subjectLine,
+      bodyHtml: emails.bodyHtml,
       scheduledSendAt: emails.scheduledSendAt,
+      previewText: emails.previewText,
       cohortId: cohorts.id,
       programName: cohorts.programName,
+      sendStatus: cohorts.sendStatus,
       teacherId: teachers.id,
       teacherEmail: teachers.email,
       teacherName: teachers.name,
@@ -40,71 +50,155 @@ export async function GET(req: Request) {
       )
     );
 
-  if (overdueEmails.length === 0) {
-    return Response.json({ ok: true, notified: 0 });
+  if (dueRows.length === 0) {
+    return Response.json({ ok: true, processed: 0, skipped: 0 });
   }
 
-  // Group by teacher so each teacher gets one digest, not one email per row
-  const byTeacher = new Map<
+  // Fetch Kit API keys for all teachers at once to avoid N+1
+  const teacherIds = Array.from(new Set(dueRows.map((r) => r.teacherId)));
+  const kitConnections = await db
+    .select({
+      teacherId: platformConnections.teacherId,
+      accessToken: platformConnections.accessToken,
+    })
+    .from(platformConnections)
+    .where(eq(platformConnections.platform, "convertkit"));
+
+  const kitKeyByTeacher = new Map(kitConnections.map((c) => [c.teacherId, c.accessToken]));
+
+  let processed = 0;
+  let skipped = 0;
+  const failedByTeacher = new Map<
     string,
-    {
-      teacherEmail: string;
-      teacherName: string | null;
-      items: { programName: string; subjectLine: string; scheduledSendAt: Date | null }[];
-    }
+    { teacherEmail: string; teacherName: string | null; subjects: string[] }
   >();
 
-  for (const row of overdueEmails) {
-    const existing = byTeacher.get(row.teacherId);
-    const item = {
-      programName: row.programName,
-      subjectLine: row.subjectLine,
-      scheduledSendAt: row.scheduledSendAt,
-    };
-    if (existing) {
-      existing.items.push(item);
-    } else {
-      byTeacher.set(row.teacherId, {
-        teacherEmail: row.teacherEmail,
-        teacherName: row.teacherName,
-        items: [item],
+  for (const row of dueRows) {
+    // ── Kill switch: skip if cohort is paused or cancelled ────────────────────
+    if (row.sendStatus === "paused" || row.sendStatus === "cancelled") {
+      await db.insert(sendLog).values({
+        cohortId: row.cohortId,
+        emailId: row.emailId,
+        sequencePosition: row.emailPosition,
+        esp: "convertkit",
+        status: "skipped",
+        errorMessage: `Cohort send_status is '${row.sendStatus}'`,
       });
+      skipped++;
+      continue;
+    }
+
+    const kitKey = kitKeyByTeacher.get(row.teacherId);
+    if (!kitKey) {
+      // No Kit connection — log as skipped (teacher hasn't connected Kit yet)
+      await db.insert(sendLog).values({
+        cohortId: row.cohortId,
+        emailId: row.emailId,
+        sequencePosition: row.emailPosition,
+        esp: "convertkit",
+        status: "skipped",
+        errorMessage: "No ConvertKit connection found for this teacher",
+      });
+      skipped++;
+      continue;
+    }
+
+    // ── Attempt Kit broadcast creation ────────────────────────────────────────
+    try {
+      const kitRes = await fetch("https://api.kit.com/v4/broadcasts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Kit-Api-Key": kitKey,
+        },
+        body: JSON.stringify({
+          subject: row.subjectLine,
+          content: row.bodyHtml,
+          description: `${row.programName} — Email ${row.emailPosition}`,
+          subscriber_filter: [{ all: true }],
+          published_at: row.scheduledSendAt?.toISOString() ?? now.toISOString(),
+          send_at: row.scheduledSendAt?.toISOString() ?? now.toISOString(),
+        }),
+      });
+
+      if (!kitRes.ok) {
+        const errBody = await kitRes.text();
+        throw new Error(`Kit API ${kitRes.status}: ${errBody.slice(0, 200)}`);
+      }
+
+      const kitData = (await kitRes.json()) as { broadcast?: { id?: number } };
+      const broadcastId = String(kitData.broadcast?.id ?? "");
+
+      // Save broadcast ID so this email isn't picked up on the next cron run
+      await db
+        .update(emails)
+        .set({ convertkitBroadcastId: broadcastId, updatedAt: new Date() })
+        .where(eq(emails.id, row.emailId));
+
+      await db.insert(sendLog).values({
+        cohortId: row.cohortId,
+        emailId: row.emailId,
+        sequencePosition: row.emailPosition,
+        esp: "convertkit",
+        status: "success",
+      });
+
+      processed++;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      await db.insert(sendLog).values({
+        cohortId: row.cohortId,
+        emailId: row.emailId,
+        sequencePosition: row.emailPosition,
+        esp: "convertkit",
+        status: "failed",
+        errorMessage,
+      });
+
+      // Aggregate failures per teacher for the notification email
+      const existing = failedByTeacher.get(row.teacherId);
+      if (existing) {
+        existing.subjects.push(row.subjectLine);
+      } else {
+        failedByTeacher.set(row.teacherId, {
+          teacherEmail: row.teacherEmail,
+          teacherName: row.teacherName,
+          subjects: [row.subjectLine],
+        });
+      }
     }
   }
 
-  let notified = 0;
-  for (const { teacherEmail, teacherName, items } of Array.from(byTeacher.values())) {
-    const lines = items.map((e) => {
-      const when = e.scheduledSendAt
-        ? new Date(e.scheduledSendAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          })
-        : "scheduled date passed";
-      return `  • "${e.subjectLine}" (${e.programName}, was due ${when})`;
-    });
-
+  // Notify teachers about failures
+  for (const { teacherEmail, teacherName, subjects } of Array.from(
+    failedByTeacher.values()
+  )) {
+    const lines = subjects.map((s) => `  • "${s}"`);
     const body = [
       `Hi ${teacherName ?? "there"},`,
       "",
-      `You have ${items.length} email${items.length === 1 ? "" : "s"} that ${
-        items.length === 1 ? "was" : "were"
-      } scheduled to send but haven't been exported to Kit yet:`,
+      `${subjects.length} email${subjects.length === 1 ? "" : "s"} failed to send via ConvertKit:`,
       "",
       ...lines,
       "",
-      "Head to Pigeon → Export to Kit to publish them.",
+      "Log in to Pigeon and check the Send Log on your Launch Calendar to see the error details.",
       "",
       "— The Pigeon Team",
     ].join("\n");
 
     await sendNotification({
       to: teacherEmail,
-      subject: `${items.length} overdue email${items.length === 1 ? "" : "s"} in Pigeon`,
+      subject: `${subjects.length} email${subjects.length === 1 ? "" : "s"} failed to send — Pigeon`,
       body,
     });
-    notified++;
   }
 
-  return Response.json({ ok: true, notified, overdueCount: overdueEmails.length });
+  return Response.json({
+    ok: true,
+    processed,
+    skipped,
+    failed: failedByTeacher.size,
+    teacherIds: teacherIds.length,
+  });
 }

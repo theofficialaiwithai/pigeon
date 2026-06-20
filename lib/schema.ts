@@ -10,6 +10,10 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
+// Re-exported type aliases for status columns so call sites get autocomplete.
+export type SendStatus = "active" | "paused" | "cancelled";
+export type SendLogStatus = "success" | "failed" | "skipped";
+
 export const teachers = pgTable("teachers", {
   id: uuid("id").primaryKey().defaultRandom(),
   clerkUserId: text("clerk_user_id").unique().notNull(),
@@ -54,6 +58,8 @@ export const cohorts = pgTable(
     priceUsd: integer("price_usd"),
     kajabiProductId: text("kajabi_product_id"),
     status: text("status").default("draft"),
+    // Kill switch for the scheduled-send cron. "active" | "paused" | "cancelled"
+    sendStatus: text("send_status").$type<SendStatus>().default("active"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },
@@ -109,6 +115,26 @@ export const emailVariants = pgTable(
     createdAt: timestamp("created_at").defaultNow(),
   },
   (t) => [index("email_variants_email_id_idx").on(t.emailId)]
+);
+
+export const sendLog = pgTable(
+  "send_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cohortId: uuid("cohort_id")
+      .notNull()
+      .references(() => cohorts.id, { onDelete: "cascade" }),
+    // Nullable: if the email row is later deleted we keep the log entry.
+    emailId: uuid("email_id").references(() => emails.id, { onDelete: "set null" }),
+    sequencePosition: integer("sequence_position"),
+    // "convertkit" | "webhook" | "kajabi"
+    esp: text("esp").notNull(),
+    // "success" | "failed" | "skipped"
+    status: text("status").$type<SendLogStatus>().notNull(),
+    errorMessage: text("error_message"),
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("send_log_cohort_id_idx").on(t.cohortId)]
 );
 
 export const platformConnections = pgTable(

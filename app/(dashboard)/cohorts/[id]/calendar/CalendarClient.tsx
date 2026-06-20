@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Loader2Icon, PauseIcon, PlayIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import type { SendStatus } from "@/lib/schema";
 
 const TYPE_LABELS: Record<string, string> = {
   pre_launch_warmup: "Pre-Launch Warmup",
@@ -42,6 +43,16 @@ interface EmailState {
   approvalStatus: string;
 }
 
+interface SendLogEntry {
+  id: string;
+  emailId: string | null;
+  sequencePosition: number | null;
+  esp: string;
+  status: string;
+  errorMessage: string | null;
+  sentAt: string;
+}
+
 interface CalendarClientProps {
   cohortId: string;
   programName: string;
@@ -49,6 +60,8 @@ interface CalendarClientProps {
   cartCloseDate: string | null;
   cohortStartDate: string | null;
   initialEmails: EmailState[];
+  initialSendStatus: SendStatus;
+  sendLogs: SendLogEntry[];
 }
 
 function fmtMilestoneDate(dateStr: string): string {
@@ -268,6 +281,26 @@ function GapLabel({ days }: { days: number | null }) {
   );
 }
 
+function SendLogStatusBadge({ status }: { status: string }) {
+  if (status === "success")
+    return (
+      <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+        Success
+      </span>
+    );
+  if (status === "failed")
+    return (
+      <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+        Failed
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+      Skipped
+    </span>
+  );
+}
+
 export function CalendarClient({
   cohortId,
   programName,
@@ -275,6 +308,8 @@ export function CalendarClient({
   cartCloseDate,
   cohortStartDate,
   initialEmails,
+  initialSendStatus,
+  sendLogs,
 }: CalendarClientProps) {
   const router = useRouter();
   const [emailList, setEmailList] = useState<EmailState[]>(initialEmails);
@@ -282,6 +317,8 @@ export function CalendarClient({
   const [editingEmail, setEditingEmail] = useState<EmailState | null>(null);
   const [newDatetime, setNewDatetime] = useState("");
   const [saving, setSaving] = useState(false);
+  const [sendStatus, setSendStatus] = useState<SendStatus>(initialSendStatus);
+  const [statusChanging, setStatusChanging] = useState(false);
 
   const approvedCount = emailList.filter((e) => e.approvalStatus === "approved").length;
   const allApproved = approvedCount === emailList.length && emailList.length > 0;
@@ -317,6 +354,25 @@ export function CalendarClient({
     }
   }
 
+  async function toggleSendStatus() {
+    const next: SendStatus = sendStatus === "active" ? "paused" : "active";
+    setStatusChanging(true);
+    try {
+      const res = await fetch(`/api/cohorts/${cohortId}/send-status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      setSendStatus(next);
+      toast.success(next === "paused" ? "Sends paused" : "Sends resumed");
+    } catch {
+      toast.error("Could not update send status");
+    } finally {
+      setStatusChanging(false);
+    }
+  }
+
   return (
     <div className="flex flex-col">
       <div className="max-w-2xl mx-auto w-full space-y-6">
@@ -336,21 +392,56 @@ export function CalendarClient({
               {approvedCount} of {emailList.length} emails approved
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-shrink-0 mt-1"
-            disabled={emailList.every((e) => !e.scheduledSendAt)}
-            title={
-              emailList.every((e) => !e.scheduledSendAt)
-                ? "Set at least one send date first"
-                : "Download all scheduled emails as a single .ics file"
-            }
-            onClick={() => downloadAllIcs(emailList, programName)}
-          >
-            Export Full Launch Calendar
-          </Button>
+          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+            {/* Kill switch */}
+            {sendStatus !== "cancelled" && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={statusChanging}
+                onClick={toggleSendStatus}
+                className={cn(
+                  "gap-1.5",
+                  sendStatus === "paused" && "border-amber-300 text-amber-700 hover:bg-amber-50"
+                )}
+              >
+                {statusChanging ? (
+                  <Loader2Icon size={13} className="animate-spin" />
+                ) : sendStatus === "active" ? (
+                  <PauseIcon size={13} />
+                ) : (
+                  <PlayIcon size={13} />
+                )}
+                {sendStatus === "active" ? "Pause Sends" : "Resume Sends"}
+              </Button>
+            )}
+            {sendStatus === "cancelled" && (
+              <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                Cancelled
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={emailList.every((e) => !e.scheduledSendAt)}
+              title={
+                emailList.every((e) => !e.scheduledSendAt)
+                  ? "Set at least one send date first"
+                  : "Download all scheduled emails as a single .ics file"
+              }
+              onClick={() => downloadAllIcs(emailList, programName)}
+            >
+              Export Calendar
+            </Button>
+          </div>
         </div>
+
+        {/* Paused banner */}
+        {sendStatus === "paused" && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <strong>Sends paused.</strong> The scheduled-send cron will skip all emails for this cohort until you resume.
+          </div>
+        )}
 
         {/* Milestone markers */}
         {(cartOpenDate || cartCloseDate || cohortStartDate) && (
@@ -500,6 +591,64 @@ export function CalendarClient({
             })}
           </div>
         </div>
+        {/* Send Log */}
+        {sendLogs.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+              Send Log
+            </h2>
+            <div className="overflow-hidden rounded-xl border border-pigeon-border bg-white">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-pigeon-border bg-pigeon-bg">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                      Email
+                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                      Platform
+                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                      Status
+                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                      When
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-pigeon-border">
+                  {sendLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-pigeon-bg/50">
+                      <td className="px-4 py-3 text-gray-800">
+                        {log.sequencePosition != null
+                          ? `Email ${log.sequencePosition}`
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3 capitalize text-gray-600">
+                        {log.esp}
+                      </td>
+                      <td className="px-4 py-3">
+                        <SendLogStatusBadge status={log.status} />
+                        {log.errorMessage && (
+                          <p className="mt-0.5 text-xs text-red-500 max-w-xs truncate" title={log.errorMessage}>
+                            {log.errorMessage}
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-pigeon-muted whitespace-nowrap">
+                        {new Date(log.sentAt).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sticky bottom bar */}
