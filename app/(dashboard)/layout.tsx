@@ -1,12 +1,17 @@
+import { currentUser } from "@clerk/nextjs/server";
 import { Sidebar } from "./_components/sidebar";
 import { Topbar } from "./_components/topbar";
 import { Toaster } from "@/components/ui/sonner";
+import { OnboardingModal } from "@/components/onboarding-modal";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await currentUser();
+  const hasOnboarded = user?.publicMetadata?.hasCompletedOnboarding === true;
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -17,6 +22,7 @@ export default function DashboardLayout({
         </main>
       </div>
       <Toaster />
+      {!hasOnboarded && <OnboardingModal />}
     </div>
   );
 }
