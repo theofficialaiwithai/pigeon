@@ -1,8 +1,10 @@
 import { DemoClient } from "./DemoClient";
-import { DEMO_COHORT } from "./seed-data";
+import { buildDemoCohort } from "./seed-data";
 
-export const metadata = { title: "Pigeon Demo" };
+export const metadata = { title: "Pigeon Demo — Jordan's Launch Sequence" };
 
 export default function DemoPage() {
-  return <DemoClient cohort={DEMO_COHORT} />;
+  // Server-side: dynamic dates so demo always looks live
+  const cohort = buildDemoCohort();
+  return <DemoClient cohort={cohort} />;
 }

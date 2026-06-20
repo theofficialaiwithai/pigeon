@@ -116,6 +116,12 @@ function VoiceForm({
 
   return (
     <div className="mx-auto max-w-2xl">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+      >
+        ← Dashboard
+      </Link>
       <h2 className="font-heading text-[28px] font-bold text-gray-900">
         Build Your Voice Profile
       </h2>
@@ -227,6 +233,12 @@ function ProfileDisplay({
 
   return (
     <div className="mx-auto max-w-3xl">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+      >
+        ← Dashboard
+      </Link>
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>

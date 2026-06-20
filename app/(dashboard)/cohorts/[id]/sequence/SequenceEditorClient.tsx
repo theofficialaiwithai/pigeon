@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckIcon, Loader2Icon, PencilIcon, RefreshCwIcon } from "lucide-react";
+import { CheckIcon, ChevronLeftIcon, Loader2Icon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
@@ -635,6 +636,13 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+      >
+        <ChevronLeftIcon size={14} />
+        Dashboard
+      </Link>
       <h1 className="font-heading text-[28px] font-bold text-pigeon-primary leading-tight">
         {programName} — Launch Sequence
       </h1>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CheckIcon, ExternalLinkIcon, Loader2Icon, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -121,6 +122,12 @@ export function ExportClient({
   // ── Ready to export / partial state ────────────────────────────────────────
   return (
     <div className="max-w-2xl space-y-6">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+      >
+        ← Dashboard
+      </Link>
       {/* Header card */}
       <div className="bg-white rounded-xl border border-pigeon-border p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">

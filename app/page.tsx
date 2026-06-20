@@ -1,147 +1,178 @@
 import Link from "next/link";
+import { PigeonMascot } from "@/components/PigeonMascot";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-pigeon-bg">
+    <div className="min-h-screen bg-white">
       {/* Nav */}
-      <nav className="bg-white border-b border-pigeon-border sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="font-heading text-xl font-bold text-pigeon-primary">
-            🐦 Pigeon
-          </span>
-          <Link
-            href="/sign-in"
-            className="text-sm font-medium text-pigeon-primary hover:text-pigeon-primary/80 transition-colors"
-          >
-            Sign In →
-          </Link>
+      <nav className="sticky top-0 z-20 border-b border-pigeon-border bg-white/90 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <PigeonMascot pose="perched" size={28} />
+            <span className="font-heading text-xl font-bold text-pigeon-primary">Pigeon</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/demo" className="text-sm font-medium text-pigeon-muted hover:text-pigeon-primary transition-colors">
+              Live Demo
+            </Link>
+            <Link
+              href="/sign-in"
+              className="rounded-lg bg-pigeon-primary px-4 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
+            >
+              Get Started →
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-16 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left: Copy */}
+      <section className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:items-center">
+          {/* Left: copy */}
           <div>
-            <p className="text-sm font-semibold text-pigeon-accent uppercase tracking-wide mb-4">
-              Launch email sequences, on autopilot
-            </p>
-            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-pigeon-primary leading-tight mb-6">
-              9 launch emails, written in your voice, timed to your cohort.
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-pigeon-accent/30 bg-pigeon-accent/10 px-3 py-1">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-pigeon-accent" />
+              <span className="text-xs font-semibold text-pigeon-accent">
+                9 emails · your voice · your calendar
+              </span>
+            </div>
+            <h1 className="font-heading text-4xl font-extrabold leading-tight text-pigeon-primary md:text-5xl">
+              Launch emails
+              <br />
+              <span className="text-pigeon-accent">in your voice.</span>
+              <br />
+              In 12 seconds.
             </h1>
-            <p className="text-lg text-pigeon-muted leading-relaxed mb-6">
-              Tell Pigeon about your course and dates. Paste 5 of your past
-              emails. Get a complete, voice-matched 9-email launch sequence —
-              ready to review and export.
+            <p className="mt-6 text-lg leading-relaxed text-pigeon-muted">
+              Tell Pigeon about your cohort and paste five past emails. You get a
+              complete 9-email launch sequence — voice-matched, pre-timed to your
+              cart dates, and ready to export to ConvertKit.
             </p>
-            <p className="text-sm text-pigeon-muted border-l-2 border-pigeon-accent pl-4 mb-10">
-              For cohort course creators who spend too long writing launch emails
-              and end up with sequences that don&apos;t sound like them.
+            <p className="mt-4 border-l-4 border-pigeon-accent pl-4 text-sm italic text-pigeon-muted">
+              For cohort course creators who spend days writing launch emails and
+              end up with something that doesn&apos;t sound like them anyway.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/demo"
-                className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold bg-pigeon-accent text-white hover:bg-pigeon-accent/90 transition-colors"
+                className="inline-flex items-center justify-center rounded-xl bg-pigeon-accent px-7 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-orange-600 transition-colors"
               >
-                Try the Demo — no sign-in needed
+                See Jordan&apos;s Demo Sequence →
               </Link>
               <Link
                 href="/sign-in"
-                className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold border border-pigeon-border bg-white text-pigeon-primary hover:bg-pigeon-bg transition-colors"
+                className="inline-flex items-center justify-center rounded-xl border border-pigeon-border bg-white px-7 py-3.5 text-sm font-semibold text-pigeon-primary hover:bg-pigeon-bg transition-colors"
               >
-                Sign In →
+                Start for Free
               </Link>
             </div>
           </div>
 
-          {/* Right: Inline product mockup */}
-          <div className="bg-white rounded-2xl border border-pigeon-border shadow-sm overflow-hidden">
-            {/* Mock toolbar */}
-            <div className="px-4 py-3 border-b border-pigeon-border flex items-center gap-2 bg-pigeon-bg">
-              <span className="font-heading text-xs font-semibold text-pigeon-primary uppercase tracking-wide">
-                Launch Sequence — Systems for Solos
+          {/* Right: product mockup */}
+          <div className="rounded-2xl border border-pigeon-border bg-white shadow-lg overflow-hidden">
+            <div className="flex items-center justify-between border-b border-pigeon-border bg-pigeon-bg px-4 py-3">
+              <span className="font-heading text-xs font-bold uppercase tracking-wide text-pigeon-primary">
+                The Mindset Shift Accelerator
               </span>
-              <span className="ml-auto text-xs text-pigeon-muted font-medium">
-                9 of 9 approved
-              </span>
+              <span className="text-xs font-medium text-pigeon-muted">9 of 9 approved</span>
             </div>
-
-            {/* Mock email rows */}
             {[
-              { pos: 1, type: "Pre-Launch Warmup", subject: "Something big is coming your way…", approved: true },
-              { pos: 2, type: "List Primer", subject: "Are you a freelancer tired of chasing clients?", approved: true },
-              { pos: 3, type: "Cart Open", subject: "Doors are open — Systems for Solos is live", approved: true },
-              { pos: 4, type: "Curriculum Deep Dive", subject: "What you'll actually learn inside", approved: true },
-              { pos: 5, type: "Student Story", subject: "How Priya raised her rates by 40% in 8 weeks", approved: true },
+              { pos: 1, type: "Pre-Launch Warmup", subject: "I want to ask you something." },
+              { pos: 2, type: "List Primer", subject: "Who this is for (and who it isn't)." },
+              { pos: 3, type: "Cart Open", subject: "The door opens today." },
+              { pos: 4, type: "Curriculum Deep Dive", subject: "What actually happens inside." },
+              { pos: 5, type: "Student Story", subject: "Amara went quiet in every meeting. Then she didn't." },
             ].map((email) => (
               <div
                 key={email.pos}
-                className="flex items-center gap-3 px-4 py-3 border-b border-pigeon-border last:border-b-0 hover:bg-pigeon-bg/50 transition-colors"
+                className="flex items-center gap-3 border-b border-pigeon-border px-4 py-3 last:border-0"
               >
-                <div className="w-7 h-7 rounded-full bg-pigeon-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pigeon-primary text-xs font-bold text-white">
                   {email.pos}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-pigeon-muted mb-0.5">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-pigeon-muted">
                     {email.type}
                   </div>
-                  <div className="text-sm font-medium text-gray-800 truncate">
+                  <div className="truncate text-sm font-medium text-gray-800">
                     {email.subject}
                   </div>
                 </div>
-                {email.approved && (
-                  <span className="flex-shrink-0 text-xs font-medium text-green-700 bg-green-100 rounded-full px-2 py-0.5">
-                    Approved
-                  </span>
-                )}
+                <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">
+                  ✓
+                </span>
               </div>
             ))}
-
-            <div className="px-4 py-3 bg-pigeon-bg flex items-center justify-between">
-              <span className="text-xs text-pigeon-muted">+ 4 more emails in sequence</span>
-              <span className="text-xs font-semibold text-pigeon-accent">
-                Export to ConvertKit →
-              </span>
+            <div className="flex items-center justify-between bg-pigeon-bg px-4 py-3">
+              <span className="text-xs text-pigeon-muted">+ 4 more</span>
+              <span className="text-xs font-bold text-pigeon-accent">Export to Kit →</span>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Stats bar */}
+      <section className="border-y border-pigeon-border bg-pigeon-primary py-8">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 px-6 text-center">
+          {[
+            { stat: "9", label: "emails per sequence" },
+            { stat: "12s", label: "average generation time" },
+            { stat: "1-click", label: "export to ConvertKit" },
+          ].map(({ stat, label }) => (
+            <div key={stat}>
+              <div className="font-heading text-3xl font-extrabold text-white">{stat}</div>
+              <div className="mt-1 text-sm font-medium text-white/70">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* The problem */}
+      <section className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <h2 className="font-heading text-3xl font-extrabold text-pigeon-primary md:text-4xl">
+          Writing launch emails is the worst part.
+        </h2>
+        <p className="mt-5 text-lg leading-relaxed text-pigeon-muted">
+          You spend more time staring at a blank Notion doc than actually selling.
+          Then you hire a copywriter, spend $2k, and get back something that
+          doesn&apos;t sound like you. Then you rewrite it anyway.
+        </p>
+        <p className="mt-4 text-lg font-semibold text-pigeon-primary">
+          There&apos;s a better way.
+        </p>
+      </section>
+
       {/* How it works */}
-      <section className="bg-white border-y border-pigeon-border py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-pigeon-primary text-center mb-12">
+      <section className="border-y border-pigeon-border bg-pigeon-bg py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="mb-14 text-center font-heading text-3xl font-extrabold text-pigeon-primary md:text-4xl">
             How it works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
             {[
               {
                 step: "1",
-                title: "Add your cohort details",
-                body: "Enter your program name, curriculum, cart open/close dates, and cohort start date. Pigeon uses these to pre-time your sequence automatically.",
+                title: "Tell Pigeon about your cohort",
+                body: "Program name, curriculum, cart open/close dates, cohort start. Pigeon auto-times every email to your calendar.",
               },
               {
                 step: "2",
-                title: "Share 5 sample emails",
-                body: "Paste 5 of your past emails so Pigeon can match your voice, rhythm, and style. The more authentic, the better the output.",
+                title: "Paste 5 of your past emails",
+                body: "Any emails — launches, newsletters, updates. Pigeon reads how you write, not what you write, to build your Voice Fingerprint.",
               },
               {
                 step: "3",
-                title: "Review your sequence",
-                body: "Get a 9-email sequence pre-timed to your cohort calendar. Edit, approve, or regenerate each email before you export.",
+                title: "Review, approve, export",
+                body: "Get a 9-email sequence pre-timed to your calendar. Edit anything, approve what you love, export directly to ConvertKit.",
               },
             ].map((item) => (
               <div key={item.step} className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-pigeon-primary text-white font-heading font-extrabold text-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pigeon-primary font-heading text-xl font-extrabold text-white">
                   {item.step}
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-pigeon-primary mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-pigeon-muted leading-relaxed text-sm">
-                    {item.body}
-                  </p>
+                  <h3 className="font-heading text-lg font-bold text-pigeon-primary">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-pigeon-muted">{item.body}</p>
                 </div>
               </div>
             ))}
@@ -149,35 +180,74 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Bottom CTA strip */}
-      <section className="max-w-6xl mx-auto px-6 py-16 text-center">
-        <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-pigeon-primary mb-4">
-          Ready to stop starting from scratch?
+      {/* Demo CTA */}
+      <section className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <h2 className="font-heading text-3xl font-extrabold text-pigeon-primary md:text-4xl">
+          See it before you commit.
         </h2>
-        <p className="text-pigeon-muted mb-8 max-w-xl mx-auto">
-          Try the demo to see a full 9-email sequence, or sign in to start building yours.
+        <p className="mt-4 text-lg text-pigeon-muted">
+          Jordan&apos;s full 9-email sequence for &ldquo;The Mindset Shift Accelerator&rdquo; is live and explorable — no sign-in.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/demo"
-            className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold bg-pigeon-accent text-white hover:bg-pigeon-accent/90 transition-colors"
-          >
-            Try the Demo — no sign-in needed
-          </Link>
-          <Link
-            href="/sign-in"
-            className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold border border-pigeon-border bg-white text-pigeon-primary hover:bg-pigeon-bg transition-colors"
-          >
-            Sign In →
-          </Link>
+        <Link
+          href="/demo"
+          className="mt-8 inline-flex items-center justify-center rounded-xl bg-pigeon-accent px-8 py-4 text-base font-bold text-white shadow-md hover:bg-orange-600 transition-colors"
+        >
+          Explore Jordan&apos;s Demo Sequence →
+        </Link>
+      </section>
+
+      {/* Pricing */}
+      <section className="border-y border-pigeon-border bg-pigeon-bg py-20">
+        <div className="mx-auto max-w-2xl px-6 text-center">
+          <h2 className="font-heading text-3xl font-extrabold text-pigeon-primary">
+            Simple, honest pricing.
+          </h2>
+          <p className="mt-3 text-pigeon-muted">One plan. Everything included.</p>
+          <div className="mx-auto mt-10 max-w-sm rounded-2xl border border-pigeon-border bg-white p-8 shadow-sm">
+            <div className="font-heading text-5xl font-extrabold text-pigeon-primary">
+              $29
+              <span className="text-xl font-semibold text-pigeon-muted">/mo</span>
+            </div>
+            <p className="mt-2 text-sm text-pigeon-muted">Unlimited cohorts and sequences</p>
+            <ul className="mt-6 space-y-3 text-left text-sm text-gray-700">
+              {[
+                "Unlimited email sequences",
+                "Voice Fingerprint analysis",
+                "ConvertKit (Kit) export",
+                "Kajabi product import",
+                "Daily digest reminders",
+                "Launch Calendar view",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="font-bold text-pigeon-accent">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/sign-in"
+              className="mt-8 block rounded-xl bg-pigeon-primary py-3 text-center text-sm font-bold text-white hover:bg-pigeon-primary/90 transition-colors"
+            >
+              Start Free →
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-pigeon-border py-6 text-center">
-        <p className="text-xs text-pigeon-muted">
-          © 2026 Pigeon. Built for cohort course creators.
-        </p>
+      <footer className="border-t border-pigeon-border py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <PigeonMascot pose="perched" size={20} />
+            <span className="font-heading text-sm font-bold text-pigeon-primary">Pigeon</span>
+          </div>
+          <p className="text-xs text-pigeon-muted">
+            © 2026 Pigeon. Built for cohort course creators who launch with their whole voice.
+          </p>
+          <Link href="/demo" className="text-xs font-medium text-pigeon-muted underline underline-offset-2 hover:text-pigeon-primary">
+            Live Demo
+          </Link>
+        </div>
       </footer>
     </div>
   );

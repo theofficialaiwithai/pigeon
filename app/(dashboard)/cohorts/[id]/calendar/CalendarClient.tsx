@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ChevronDownIcon } from "lucide-react";
@@ -319,6 +320,12 @@ export function CalendarClient({
   return (
     <div className="flex flex-col">
       <div className="max-w-2xl mx-auto w-full space-y-6">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+        >
+          ← Dashboard
+        </Link>
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>

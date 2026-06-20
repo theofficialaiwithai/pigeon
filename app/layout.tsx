@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -16,8 +17,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Pigeon",
-  description: "Pigeon – built with Next.js",
+  title: "Pigeon — Launch emails in your voice",
+  description:
+    "Pigeon writes your entire launch email sequence — 9 emails, your voice, your cadence — and sends them to ConvertKit automatically.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -32,6 +35,7 @@ export default function RootLayout({
           className={`${plusJakartaSans.variable} ${inter.variable} font-sans antialiased`}
         >
           {children}
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>
