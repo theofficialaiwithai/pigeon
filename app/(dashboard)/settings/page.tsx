@@ -38,13 +38,13 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-white rounded-xl border border-pigeon-border p-6 space-y-5">
+    <section className="bg-white rounded-xl border border-pigeon-warm-rule p-6 space-y-5">
       <div>
-        <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+        <h2 className="font-heading text-base font-semibold text-pigeon-ink">
           {title}
         </h2>
         {description && (
-          <p className="mt-0.5 text-sm text-pigeon-muted">{description}</p>
+          <p className="mt-0.5 text-sm text-pigeon-ink-muted">{description}</p>
         )}
       </div>
       {children}
@@ -55,7 +55,7 @@ function Section({
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
-      <span className="w-36 shrink-0 text-sm font-medium text-pigeon-muted pt-0.5">
+      <span className="w-36 shrink-0 text-sm font-medium text-pigeon-ink-muted pt-0.5">
         {label}
       </span>
       <div className="flex-1 text-sm text-gray-800">{children}</div>
@@ -163,7 +163,7 @@ export default async function SettingsPage() {
             <select
               name="timezone"
               defaultValue={timezone}
-              className="rounded-lg border border-pigeon-border bg-white px-3 py-1.5 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+              className="rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1.5 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
             >
               {TIMEZONES.map((tz) => (
                 <option key={tz} value={tz}>
@@ -173,12 +173,12 @@ export default async function SettingsPage() {
             </select>
             <button
               type="submit"
-              className="rounded-lg bg-pigeon-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
+              className="rounded-lg bg-pigeon-ink px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-ink/90 transition-colors"
             >
               Save
             </button>
           </form>
-          <p className="mt-1.5 text-xs text-pigeon-muted">
+          <p className="mt-1.5 text-xs text-pigeon-ink-muted">
             Used to schedule your launch emails at 9 AM in this timezone.
           </p>
         </Row>
@@ -194,7 +194,7 @@ export default async function SettingsPage() {
         </Row>
         {!resendConfigured && (
           <Row label="">
-            <p className="text-xs text-pigeon-muted leading-relaxed">
+            <p className="text-xs text-pigeon-ink-muted leading-relaxed">
               Set <code className="font-mono bg-gray-100 px-1 rounded">RESEND_API_KEY</code> and{" "}
               <code className="font-mono bg-gray-100 px-1 rounded">RESEND_FROM_EMAIL</code> in
               your Vercel project environment variables to enable notifications when sequences are
@@ -221,10 +221,10 @@ export default async function SettingsPage() {
         </Row>
         <Row label="Enrollment webhook">
           <div className="space-y-2">
-            <code className="block rounded-lg bg-gray-50 border border-pigeon-border px-3 py-2 text-xs font-mono text-gray-700 break-all">
+            <code className="block rounded-lg bg-gray-50 border border-pigeon-warm-rule px-3 py-2 text-xs font-mono text-gray-700 break-all">
               {webhookUrl}
             </code>
-            <p className="text-xs text-pigeon-muted leading-relaxed">
+            <p className="text-xs text-pigeon-ink-muted leading-relaxed">
               In Kajabi: <strong>Settings → Integrations → Webhooks</strong>.
               Add this URL and select the <strong>Purchase</strong> event. Pigeon
               will auto-generate a sequence when a new student enrolls, or notify

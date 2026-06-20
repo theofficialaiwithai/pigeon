@@ -61,7 +61,7 @@ export function KitConnectCard({ initialAccountName }: Props) {
         <button
           onClick={handleDisconnect}
           disabled={loading}
-          className="text-xs text-pigeon-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
+          className="text-xs text-pigeon-ink-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
         >
           {loading ? "Disconnecting…" : "Disconnect"}
         </button>
@@ -79,12 +79,12 @@ export function KitConnectCard({ initialAccountName }: Props) {
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="kit_••••••••"
             autoComplete="off"
-            className="w-full rounded-lg border border-pigeon-border bg-white px-3 py-1.5 pr-16 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+            className="w-full rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1.5 pr-16 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
           />
           <button
             type="button"
             onClick={() => setShowKey((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-muted hover:text-gray-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-ink-muted hover:text-gray-700"
           >
             {showKey ? "Hide" : "Show"}
           </button>
@@ -92,18 +92,18 @@ export function KitConnectCard({ initialAccountName }: Props) {
         <button
           type="submit"
           disabled={loading || !apiKey.trim()}
-          className="rounded-lg bg-pigeon-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-primary/90 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-pigeon-ink px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-ink/90 disabled:opacity-50 transition-colors"
         >
           {loading ? "Connecting…" : "Connect →"}
         </button>
       </div>
-      <p className="text-xs text-pigeon-muted">
+      <p className="text-xs text-pigeon-ink-muted">
         Find this in{" "}
         <a
           href="https://app.kit.com/account_settings/developer_settings"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-pigeon-primary"
+          className="underline underline-offset-2 hover:text-pigeon-ink"
         >
           Kit → Settings → Developer
         </a>

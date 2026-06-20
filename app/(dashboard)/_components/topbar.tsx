@@ -22,8 +22,8 @@ export function Topbar() {
   const pathname = usePathname();
 
   return (
-    <header className="shrink-0 border-b border-pigeon-border bg-white px-8 py-4">
-      <h1 className="font-heading text-2xl font-semibold text-pigeon-primary">
+    <header className="shrink-0 border-b border-pigeon-warm-rule bg-white px-8 py-4">
+      <h1 className="font-heading text-2xl font-semibold text-pigeon-ink">
         {deriveTitle(pathname)}
       </h1>
     </header>

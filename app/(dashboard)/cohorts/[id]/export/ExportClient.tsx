@@ -126,18 +126,18 @@ export function ExportClient({
       <div className="max-w-lg space-y-6">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
         >
           ← Dashboard
         </Link>
-        <div className="bg-white rounded-xl border border-pigeon-border p-8 text-center space-y-4">
+        <div className="bg-white rounded-xl border border-pigeon-warm-rule p-8 text-center space-y-4">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
             <CheckIcon className="h-6 w-6 text-green-600" />
           </div>
-          <h2 className="font-heading text-lg font-semibold text-pigeon-primary">
+          <h2 className="font-heading text-lg font-semibold text-pigeon-ink">
             Exported to Kit
           </h2>
-          <p className="text-sm text-pigeon-muted">
+          <p className="text-sm text-pigeon-ink-muted">
             All {emails.length} emails for <strong>{programName}</strong> are
             now scheduled broadcasts in your Kit account ({kitAccountName}).
           </p>
@@ -145,7 +145,7 @@ export function ExportClient({
             href="https://app.kit.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-pigeon-accent px-5 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-pigeon-sienna px-5 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
           >
             Go activate it in Kit
             <ExternalLinkIcon size={14} />
@@ -168,20 +168,20 @@ export function ExportClient({
     <div className="max-w-2xl space-y-6">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
       >
         ← Dashboard
       </Link>
 
       {/* Kit export card — only shown when Kit is connected */}
       {kitAccountName && (
-        <div className="bg-white rounded-xl border border-pigeon-border p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-pigeon-warm-rule p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+              <h2 className="font-heading text-base font-semibold text-pigeon-ink">
                 Export to Kit
               </h2>
-              <p className="mt-1 text-sm text-pigeon-muted">
+              <p className="mt-1 text-sm text-pigeon-ink-muted">
                 {programName} · Connected as{" "}
                 <span className="font-medium text-gray-700">{kitAccountName}</span>
               </p>
@@ -189,7 +189,7 @@ export function ExportClient({
             <button
               onClick={handleKitExport}
               disabled={exporting}
-              className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-pigeon-primary px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 disabled:opacity-60 transition-colors"
+              className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-pigeon-ink px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-ink/90 disabled:opacity-60 transition-colors"
             >
               {exporting && <Loader2Icon size={14} className="animate-spin" />}
               {exporting ? "Exporting…" : initialPartial ? "Re-export All" : "Export All Emails"}
@@ -232,16 +232,16 @@ export function ExportClient({
                   ? "border-green-200"
                   : result && !result.success
                   ? "border-red-200"
-                  : "border-pigeon-border"
+                  : "border-pigeon-warm-rule"
               )}
             >
-              <span className="w-6 shrink-0 text-center text-xs font-semibold text-pigeon-muted">
+              <span className="w-6 shrink-0 text-center text-xs font-semibold text-pigeon-ink-muted">
                 {email.position}
               </span>
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{email.subjectLine}</p>
-                <p className="text-xs text-pigeon-muted">
+                <p className="text-xs text-pigeon-ink-muted">
                   {TYPE_LABELS[email.emailType] ?? email.emailType} · {formatDate(email.scheduledSendAt)}
                 </p>
                 {result?.error && (
@@ -251,12 +251,12 @@ export function ExportClient({
 
               <div className="shrink-0">
                 {exporting && !result && (
-                  <Loader2Icon size={16} className="animate-spin text-pigeon-muted" />
+                  <Loader2Icon size={16} className="animate-spin text-pigeon-ink-muted" />
                 )}
                 {result?.success && <CheckIcon size={16} className="text-green-600" />}
                 {result && !result.success && <XIcon size={16} className="text-red-500" />}
                 {wasAlreadyExported && !result && (
-                  <span className="text-xs text-pigeon-muted">Already exported</span>
+                  <span className="text-xs text-pigeon-ink-muted">Already exported</span>
                 )}
               </div>
             </div>
@@ -279,20 +279,20 @@ function WebhookExportCard({
   onExport: () => void;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-pigeon-border p-6 space-y-3">
+    <div className="bg-white rounded-xl border border-pigeon-warm-rule p-6 space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+          <h2 className="font-heading text-base font-semibold text-pigeon-ink">
             Export via Zapier / Make
           </h2>
-          <p className="mt-1 text-sm text-pigeon-muted">
+          <p className="mt-1 text-sm text-pigeon-ink-muted">
             Send all 9 emails as a single JSON payload to your connected webhook.
           </p>
         </div>
         <button
           onClick={onExport}
           disabled={exporting}
-          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-pigeon-border bg-white px-5 py-2 text-sm font-semibold text-pigeon-primary hover:bg-pigeon-bg disabled:opacity-60 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-pigeon-warm-rule bg-white px-5 py-2 text-sm font-semibold text-pigeon-ink hover:bg-pigeon-cream disabled:opacity-60 transition-colors"
         >
           {exporting && <Loader2Icon size={14} className="animate-spin" />}
           {exporting ? "Sending…" : "Export via Webhook"}

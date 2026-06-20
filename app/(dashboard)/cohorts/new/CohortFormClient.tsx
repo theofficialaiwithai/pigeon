@@ -98,18 +98,18 @@ function KajabiBanner({
 
   return (
     <>
-      <Card className="mb-6 rounded-xl border border-pigeon-primary/20 bg-pigeon-primary/5">
+      <Card className="mb-6 rounded-xl border border-pigeon-ink/20 bg-pigeon-ink/5">
         <CardContent className="flex items-center gap-4 p-4">
           <div className="flex shrink-0 items-center gap-2">
-            <span className="font-sans text-sm font-semibold text-pigeon-primary">
+            <span className="font-sans text-sm font-semibold text-pigeon-ink">
               Kajabi
             </span>
-            <span className="flex items-center gap-1 font-sans text-xs text-pigeon-success">
-              <span className="size-1.5 rounded-full bg-pigeon-success" />
+            <span className="flex items-center gap-1 font-sans text-xs text-pigeon-sage">
+              <span className="size-1.5 rounded-full bg-pigeon-sage" />
               Connected
             </span>
           </div>
-          <p className="flex-1 font-sans text-sm text-pigeon-muted">
+          <p className="flex-1 font-sans text-sm text-pigeon-ink-muted">
             {imported
               ? `Imported from Kajabi: ${imported}`
               : "Import a program from Kajabi to auto-fill this form."}
@@ -117,13 +117,13 @@ function KajabiBanner({
           {!imported && (
             <button
               onClick={openDialog}
-              className="shrink-0 rounded-lg border border-pigeon-primary px-3 py-1.5 font-sans text-sm font-medium text-pigeon-primary hover:bg-pigeon-primary/10"
+              className="shrink-0 rounded-lg border border-pigeon-ink px-3 py-1.5 font-sans text-sm font-medium text-pigeon-ink hover:bg-pigeon-ink/10"
             >
               Choose a Program ↓
             </button>
           )}
           {imported && (
-            <span className="shrink-0 font-sans text-sm font-medium text-pigeon-success">
+            <span className="shrink-0 font-sans text-sm font-medium text-pigeon-sage">
               ✓ Imported
             </span>
           )}
@@ -139,12 +139,12 @@ function KajabiBanner({
           </DialogHeader>
           <div className="mt-2 space-y-2">
             {loading && (
-              <p className="py-4 text-center font-sans text-sm text-pigeon-muted">
+              <p className="py-4 text-center font-sans text-sm text-pigeon-ink-muted">
                 Loading programs…
               </p>
             )}
             {!loading && products.length === 0 && (
-              <p className="py-4 text-center font-sans text-sm text-pigeon-muted">
+              <p className="py-4 text-center font-sans text-sm text-pigeon-ink-muted">
                 No programs found.
               </p>
             )}
@@ -152,13 +152,13 @@ function KajabiBanner({
               <button
                 key={p.id}
                 onClick={() => selectProduct(p)}
-                className="flex w-full items-center justify-between rounded-lg border border-pigeon-border p-3 text-left hover:border-pigeon-primary hover:bg-pigeon-bg"
+                className="flex w-full items-center justify-between rounded-lg border border-pigeon-warm-rule p-3 text-left hover:border-pigeon-ink hover:bg-pigeon-cream"
               >
                 <span className="font-heading text-sm font-semibold text-gray-900">
                   {p.name}
                 </span>
                 {p.startDate && (
-                  <span className="font-sans text-xs text-pigeon-muted">
+                  <span className="font-sans text-xs text-pigeon-ink-muted">
                     Starts {p.startDate}
                   </span>
                 )}
@@ -184,7 +184,7 @@ function Label({ children }: { children: React.ReactNode }) {
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p className="mt-1 font-sans text-xs text-pigeon-error">{message}</p>
+    <p className="mt-1 font-sans text-xs text-pigeon-sienna">{message}</p>
   );
 }
 
@@ -282,7 +282,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24">
         <svg
-          className="size-8 animate-spin text-pigeon-accent"
+          className="size-8 animate-spin text-pigeon-sienna"
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -303,7 +303,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
         <p className="font-heading text-xl font-semibold text-gray-900">
           Generating your sequence…
         </p>
-        <p className="font-sans text-sm text-pigeon-muted">
+        <p className="font-sans text-sm text-pigeon-ink-muted">
           Claude is writing 9 emails in your voice. This usually takes 20–40 seconds.
         </p>
       </div>
@@ -315,7 +315,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
       <h2 className="font-heading text-[28px] font-bold text-gray-900">
         Set Up Your Cohort
       </h2>
-      <p className="mt-2 font-sans text-base text-pigeon-muted">
+      <p className="mt-2 font-sans text-base text-pigeon-ink-muted">
         Tell Pigeon about your program and launch dates.
       </p>
 
@@ -325,7 +325,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
         </div>
       )}
 
-      <Card className="mt-6 rounded-xl border border-pigeon-border bg-white shadow-sm">
+      <Card className="mt-6 rounded-xl border border-pigeon-warm-rule bg-white shadow-sm">
         <CardContent className="space-y-6 p-6">
           {/* Program Name */}
           <div>
@@ -335,8 +335,8 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
               onChange={(e) => set("programName", e.target.value)}
               placeholder="e.g. The Bold Creator Accelerator"
               className={cn(
-                "border-pigeon-border bg-white font-sans",
-                errors.programName && "border-pigeon-error"
+                "border-pigeon-warm-rule bg-white font-sans",
+                errors.programName && "border-pigeon-sienna"
               )}
             />
             <FieldError message={errors.programName} />
@@ -350,18 +350,18 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
               onChange={(e) => set("curriculumSummary", e.target.value)}
               placeholder="Describe your modules, key outcomes, and the transformation students experience. The more specific, the better the emails."
               className={cn(
-                "min-h-40 resize-y border-pigeon-border bg-white font-sans text-sm",
-                errors.curriculumSummary && "border-pigeon-error"
+                "min-h-40 resize-y border-pigeon-warm-rule bg-white font-sans text-sm",
+                errors.curriculumSummary && "border-pigeon-sienna"
               )}
             />
             <p
               className={cn(
                 "mt-1 font-sans text-xs",
                 wc === 0
-                  ? "text-pigeon-muted"
+                  ? "text-pigeon-ink-muted"
                   : wc >= 100 && wc <= 500
-                  ? "text-pigeon-success"
-                  : "text-pigeon-accent"
+                  ? "text-pigeon-sage"
+                  : "text-pigeon-sienna"
               )}
             >
               {wc} words — aim for 100–500
@@ -378,10 +378,10 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
                 value={form.cartOpenDate}
                 onChange={(e) => set("cartOpenDate", e.target.value)}
                 className={cn(
-                  "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-primary",
+                  "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-ink",
                   errors.cartOpenDate
-                    ? "border-pigeon-error"
-                    : "border-pigeon-border"
+                    ? "border-pigeon-sienna"
+                    : "border-pigeon-warm-rule"
                 )}
               />
               <FieldError message={errors.cartOpenDate} />
@@ -394,10 +394,10 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
                 min={form.cartOpenDate || undefined}
                 onChange={(e) => set("cartCloseDate", e.target.value)}
                 className={cn(
-                  "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-primary",
+                  "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-ink",
                   errors.cartCloseDate
-                    ? "border-pigeon-error"
-                    : "border-pigeon-border"
+                    ? "border-pigeon-sienna"
+                    : "border-pigeon-warm-rule"
                 )}
               />
               <FieldError message={errors.cartCloseDate} />
@@ -413,10 +413,10 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
               min={form.cartCloseDate || undefined}
               onChange={(e) => set("cohortStartDate", e.target.value)}
               className={cn(
-                "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-primary",
+                "w-full rounded-lg border px-3 py-2 font-sans text-sm text-gray-900 outline-none focus:border-pigeon-ink",
                 errors.cohortStartDate
-                  ? "border-pigeon-error"
-                  : "border-pigeon-border"
+                  ? "border-pigeon-sienna"
+                  : "border-pigeon-warm-rule"
               )}
             />
             <FieldError message={errors.cohortStartDate} />
@@ -432,13 +432,13 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
                 value={form.seatCount}
                 onChange={(e) => set("seatCount", e.target.value)}
                 placeholder="e.g. 50"
-                className="border-pigeon-border bg-white font-sans"
+                className="border-pigeon-warm-rule bg-white font-sans"
               />
             </div>
             <div>
               <Label>Price per Seat (USD)</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-sans text-sm text-pigeon-muted">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-sans text-sm text-pigeon-ink-muted">
                   $
                 </span>
                 <Input
@@ -447,7 +447,7 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
                   value={form.priceUsd}
                   onChange={(e) => set("priceUsd", e.target.value)}
                   placeholder="997"
-                  className="border-pigeon-border bg-white pl-6 font-sans"
+                  className="border-pigeon-warm-rule bg-white pl-6 font-sans"
                 />
               </div>
             </div>
@@ -461,8 +461,8 @@ export function CohortFormClient({ hasKajabi }: { hasKajabi: boolean }) {
         className={cn(
           "mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-heading text-base font-semibold text-white transition-colors",
           status === "saving"
-            ? "cursor-not-allowed bg-pigeon-accent/60"
-            : "cursor-pointer bg-pigeon-accent hover:bg-orange-600"
+            ? "cursor-not-allowed bg-pigeon-sienna/60"
+            : "cursor-pointer bg-pigeon-sienna hover:bg-orange-600"
         )}
       >
         {status === "saving" ? (

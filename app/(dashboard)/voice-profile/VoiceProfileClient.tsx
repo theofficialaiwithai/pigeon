@@ -112,14 +112,14 @@ function VoiceForm({ onSuccess }: { onSuccess: (data: VoiceProfileData) => void 
     <div className="mx-auto max-w-2xl">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
       >
         ← Dashboard
       </Link>
       <h2 className="font-heading text-[28px] font-bold text-gray-900">
         Build Your Voice Profile
       </h2>
-      <p className="mt-3 font-sans text-base text-pigeon-muted">
+      <p className="mt-3 font-sans text-base text-pigeon-ink-muted">
         Paste 5 emails you&apos;ve sent before — any kind. Launch sequences,
         weekly updates, personal notes. Pigeon reads how you write, not what you
         say.
@@ -130,7 +130,7 @@ function VoiceForm({ onSuccess }: { onSuccess: (data: VoiceProfileData) => void 
           const wc = wordCounts[i];
           const qualified = wc >= 50;
           return (
-            <Card key={i} className="rounded-xl border border-pigeon-border bg-white shadow-sm">
+            <Card key={i} className="rounded-xl border border-pigeon-warm-rule bg-white shadow-sm">
               <CardContent className="p-5">
                 <label className="mb-2 block font-heading text-sm font-semibold text-gray-700">
                   Email {i + 1}
@@ -139,16 +139,16 @@ function VoiceForm({ onSuccess }: { onSuccess: (data: VoiceProfileData) => void 
                   value={email}
                   onChange={(e) => updateEmail(i, e.target.value)}
                   placeholder="Paste an email you've sent…"
-                  className="min-h-32 resize-y border-pigeon-border bg-white font-sans text-sm focus:border-pigeon-primary"
+                  className="min-h-32 resize-y border-pigeon-warm-rule bg-white font-sans text-sm focus:border-pigeon-ink"
                 />
                 <p
                   className={cn(
                     "mt-1.5 font-sans text-xs",
                     wc === 0
-                      ? "text-pigeon-muted"
+                      ? "text-pigeon-ink-muted"
                       : qualified
-                      ? "text-pigeon-success"
-                      : "text-pigeon-error"
+                      ? "text-pigeon-sage"
+                      : "text-pigeon-sienna"
                   )}
                 >
                   {wc === 0
@@ -169,8 +169,8 @@ function VoiceForm({ onSuccess }: { onSuccess: (data: VoiceProfileData) => void 
         className={cn(
           "mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 font-heading text-base font-semibold text-white transition-colors",
           allQualified && !loading
-            ? "bg-pigeon-accent hover:bg-orange-600 cursor-pointer"
-            : "bg-pigeon-accent/50 cursor-not-allowed"
+            ? "bg-pigeon-sienna hover:bg-orange-600 cursor-pointer"
+            : "bg-pigeon-sienna/50 cursor-not-allowed"
         )}
       >
         {loading ? (
@@ -233,7 +233,7 @@ function ProfileDisplay({
     <div className="mx-auto max-w-3xl">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+        className="inline-flex items-center gap-1 mb-6 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
       >
         ← Dashboard
       </Link>
@@ -244,22 +244,22 @@ function ProfileDisplay({
           <h2 className="font-heading text-[28px] font-bold text-gray-900">
             Your Voice Profile
           </h2>
-          <p className="mt-2 font-sans text-base text-pigeon-muted">
+          <p className="mt-2 font-sans text-base text-pigeon-ink-muted">
             This is how Pigeon will write every email in your sequence.
           </p>
         </div>
         <button
           onClick={() => setConfirmOpen(true)}
-          className="shrink-0 font-sans text-sm text-pigeon-muted underline-offset-2 hover:underline"
+          className="shrink-0 font-sans text-sm text-pigeon-ink-muted underline-offset-2 hover:underline"
         >
           Regenerate
         </button>
       </div>
 
       {/* Radar chart */}
-      <Card className="mb-6 rounded-xl border border-pigeon-border bg-white shadow-sm">
+      <Card className="mb-6 rounded-xl border border-pigeon-warm-rule bg-white shadow-sm">
         <CardContent className="p-6">
-          <h3 className="mb-4 font-heading text-base font-semibold text-pigeon-primary">
+          <h3 className="mb-4 font-heading text-base font-semibold text-pigeon-ink">
             Voice Fingerprint
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -287,18 +287,18 @@ function ProfileDisplay({
           if (!dim) return null;
           const examples = dim.examples.slice(0, 2);
           return (
-            <Card key={key} className="rounded-xl border border-pigeon-border bg-white shadow-sm">
+            <Card key={key} className="rounded-xl border border-pigeon-warm-rule bg-white shadow-sm">
               <CardContent className="p-5">
-                <p className="font-heading text-xs font-semibold uppercase tracking-wide text-pigeon-muted">
+                <p className="font-heading text-xs font-semibold uppercase tracking-wide text-pigeon-ink-muted">
                   {label}
                 </p>
-                <p className="mt-1 font-heading text-lg font-semibold text-pigeon-primary">
+                <p className="mt-1 font-heading text-lg font-semibold text-pigeon-ink">
                   {dim.classification}
                 </p>
                 {examples.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {examples.map((ex, i) => (
-                      <li key={i} className="font-sans text-sm italic text-pigeon-muted line-clamp-2">
+                      <li key={i} className="font-sans text-sm italic text-pigeon-ink-muted line-clamp-2">
                         &ldquo;{ex}&rdquo;
                       </li>
                     ))}
@@ -318,7 +318,7 @@ function ProfileDisplay({
             disabled={continuing}
             className={cn(
               buttonVariants(),
-              "bg-pigeon-accent text-white hover:bg-orange-600 inline-flex items-center gap-2"
+              "bg-pigeon-sienna text-white hover:bg-orange-600 inline-flex items-center gap-2"
             )}
           >
             {continuing && <Loader2Icon size={14} className="animate-spin" />}
@@ -327,7 +327,7 @@ function ProfileDisplay({
         ) : (
           <Link
             href="/dashboard"
-            className={cn(buttonVariants({ variant: "outline" }), "border-pigeon-border")}
+            className={cn(buttonVariants({ variant: "outline" }), "border-pigeon-warm-rule")}
           >
             Back to Dashboard
           </Link>
@@ -341,20 +341,20 @@ function ProfileDisplay({
             <DialogTitle className="font-heading text-lg font-semibold text-gray-900">
               Regenerate voice profile?
             </DialogTitle>
-            <DialogDescription className="font-sans text-sm text-pigeon-muted">
+            <DialogDescription className="font-sans text-sm text-pigeon-ink-muted">
               This will overwrite your current profile. You&apos;ll need to paste your emails again.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end gap-3">
             <button
               onClick={() => setConfirmOpen(false)}
-              className="font-sans text-sm text-pigeon-muted hover:text-gray-900"
+              className="font-sans text-sm text-pigeon-ink-muted hover:text-gray-900"
             >
               Cancel
             </button>
             <button
               onClick={() => { setConfirmOpen(false); onRegenerate(); }}
-              className="rounded-lg bg-pigeon-accent px-4 py-2 font-sans text-sm font-medium text-white hover:bg-orange-600"
+              className="rounded-lg bg-pigeon-sienna px-4 py-2 font-sans text-sm font-medium text-white hover:bg-orange-600"
             >
               Yes, regenerate
             </button>

@@ -274,7 +274,7 @@ function GapLabel({ days }: { days: number | null }) {
     );
   return (
     <div className="flex items-center gap-3 py-1 pl-14">
-      <span className="text-xs text-pigeon-muted">
+      <span className="text-xs text-pigeon-ink-muted">
         {days} day{days !== 1 ? "s" : ""} gap
       </span>
     </div>
@@ -378,17 +378,17 @@ export function CalendarClient({
       <div className="max-w-2xl mx-auto w-full space-y-6">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
         >
           ← Dashboard
         </Link>
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-pigeon-primary">
+            <h1 className="font-heading text-2xl font-bold text-pigeon-ink">
               {programName} — Launch Calendar
             </h1>
-            <p className="text-sm text-pigeon-muted mt-1">
+            <p className="text-sm text-pigeon-ink-muted mt-1">
               {approvedCount} of {emailList.length} emails approved
             </p>
           </div>
@@ -445,39 +445,39 @@ export function CalendarClient({
 
         {/* Milestone markers */}
         {(cartOpenDate || cartCloseDate || cohortStartDate) && (
-          <div className="bg-white rounded-xl border border-pigeon-border p-5">
-            <p className="text-xs font-semibold text-pigeon-muted uppercase tracking-wide mb-4">
+          <div className="bg-white rounded-xl border border-pigeon-warm-rule p-5">
+            <p className="text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide mb-4">
               Key Dates
             </p>
             <div className="flex items-center gap-2">
               {cartOpenDate && (
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-accent">
+                  <div className="text-sm font-bold text-pigeon-sienna">
                     {fmtMilestoneDate(cartOpenDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cart Open</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cart Open</div>
                 </div>
               )}
               {cartOpenDate && cartCloseDate && (
-                <div className="flex-1 h-px bg-pigeon-border" />
+                <div className="flex-1 h-px bg-pigeon-warm-rule" />
               )}
               {cartCloseDate && (
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-primary">
+                  <div className="text-sm font-bold text-pigeon-ink">
                     {fmtMilestoneDate(cartCloseDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cart Close</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cart Close</div>
                 </div>
               )}
               {cartCloseDate && cohortStartDate && (
-                <div className="flex-1 h-px bg-pigeon-border" />
+                <div className="flex-1 h-px bg-pigeon-warm-rule" />
               )}
               {cohortStartDate && (
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-success">
+                  <div className="text-sm font-bold text-pigeon-sage">
                     {fmtMilestoneDate(cohortStartDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cohort Start</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cohort Start</div>
                 </div>
               )}
             </div>
@@ -487,15 +487,15 @@ export function CalendarClient({
         {/* Timeline */}
         <div className="relative ml-4">
           {/* Continuous vertical line */}
-          <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-pigeon-border" />
+          <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-pigeon-warm-rule" />
 
           <div>
             {emailList.map((email, idx) => {
               const days = idx > 0 ? gapDays(emailList[idx - 1].scheduledSendAt, email.scheduledSendAt) : null;
               const dotColor =
                 email.approvalStatus === "approved"
-                  ? "bg-pigeon-success"
-                  : "bg-pigeon-primary";
+                  ? "bg-pigeon-sage"
+                  : "bg-pigeon-ink";
 
               return (
                 <div key={email.id}>
@@ -507,7 +507,7 @@ export function CalendarClient({
                     {/* Timeline dot */}
                     <div
                       className={cn(
-                        "absolute left-0 top-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ring-2 ring-pigeon-bg flex-shrink-0",
+                        "absolute left-0 top-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ring-2 ring-pigeon-cream flex-shrink-0",
                         dotColor
                       )}
                     >
@@ -515,21 +515,21 @@ export function CalendarClient({
                     </div>
 
                     {/* Card */}
-                    <div className="ml-12 flex-1 bg-white rounded-xl border border-pigeon-border shadow-sm mb-3 overflow-hidden">
+                    <div className="ml-12 flex-1 bg-white rounded-xl border border-pigeon-warm-rule shadow-sm mb-3 overflow-hidden">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
-                            <div className="font-heading text-xs font-semibold text-pigeon-muted uppercase tracking-wide mb-1">
+                            <div className="font-heading text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide mb-1">
                               {TYPE_LABELS[email.emailType] ?? email.emailType}
                             </div>
                             <div className="font-sans text-sm text-gray-800 font-medium leading-snug truncate">
                               {email.subjectLine || (
-                                <span className="text-pigeon-muted italic">No subject</span>
+                                <span className="text-pigeon-ink-muted italic">No subject</span>
                               )}
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                            <span className="text-xs text-pigeon-muted whitespace-nowrap">
+                            <span className="text-xs text-pigeon-ink-muted whitespace-nowrap">
                               {fmtSendAt(email.scheduledSendAt)}
                             </span>
                             <StatusBadge status={email.approvalStatus} />
@@ -594,30 +594,30 @@ export function CalendarClient({
         {/* Send Log */}
         {sendLogs.length > 0 && (
           <div className="space-y-3">
-            <h2 className="font-heading text-base font-semibold text-pigeon-primary">
+            <h2 className="font-heading text-base font-semibold text-pigeon-ink">
               Send Log
             </h2>
-            <div className="overflow-hidden rounded-xl border border-pigeon-border bg-white">
+            <div className="overflow-hidden rounded-xl border border-pigeon-warm-rule bg-white">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-pigeon-border bg-pigeon-bg">
-                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                  <tr className="border-b border-pigeon-warm-rule bg-pigeon-cream">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide">
                       Email
                     </th>
-                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide">
                       Platform
                     </th>
-                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide">
                       Status
                     </th>
-                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide">
                       When
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-pigeon-border">
+                <tbody className="divide-y divide-pigeon-warm-rule">
                   {sendLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-pigeon-bg/50">
+                    <tr key={log.id} className="hover:bg-pigeon-cream/50">
                       <td className="px-4 py-3 text-gray-800">
                         {log.sequencePosition != null
                           ? `Email ${log.sequencePosition}`
@@ -634,7 +634,7 @@ export function CalendarClient({
                           </p>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-pigeon-muted whitespace-nowrap">
+                      <td className="px-4 py-3 text-xs text-pigeon-ink-muted whitespace-nowrap">
                         {new Date(log.sentAt).toLocaleString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -652,9 +652,9 @@ export function CalendarClient({
       </div>
 
       {/* Sticky bottom bar */}
-      <div className="sticky bottom-0 bg-pigeon-surface border-t border-pigeon-border -mx-8 -mb-8 mt-8 px-8 py-3 flex items-center justify-between">
-        <span className="text-sm text-pigeon-muted">
-          <span className="font-semibold text-pigeon-primary">{approvedCount}</span> of{" "}
+      <div className="sticky bottom-0 bg-white border-t border-pigeon-warm-rule -mx-8 -mb-8 mt-8 px-8 py-3 flex items-center justify-between">
+        <span className="text-sm text-pigeon-ink-muted">
+          <span className="font-semibold text-pigeon-ink">{approvedCount}</span> of{" "}
           {emailList.length} emails approved
         </span>
         <span
@@ -663,7 +663,7 @@ export function CalendarClient({
         >
           <Button
             disabled={!allApproved}
-            className="bg-pigeon-accent text-white hover:bg-pigeon-accent/90"
+            className="bg-pigeon-sienna text-white hover:bg-pigeon-sienna/90"
             onClick={() => router.push(`/cohorts/${cohortId}/export`)}
           >
             Export to ConvertKit →
@@ -679,18 +679,18 @@ export function CalendarClient({
           </DialogHeader>
           {editingEmail && (
             <div className="space-y-3">
-              <p className="text-sm text-pigeon-muted">
+              <p className="text-sm text-pigeon-ink-muted">
                 {TYPE_LABELS[editingEmail.emailType] ?? editingEmail.emailType}
               </p>
               <div>
-                <label className="block text-xs font-medium text-pigeon-muted mb-1.5">
+                <label className="block text-xs font-medium text-pigeon-ink-muted mb-1.5">
                   Scheduled send date &amp; time
                 </label>
                 <input
                   type="datetime-local"
                   value={newDatetime}
                   onChange={(e) => setNewDatetime(e.target.value)}
-                  className="w-full rounded-lg border border-pigeon-border bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+                  className="w-full rounded-lg border border-pigeon-warm-rule bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
                 />
               </div>
             </div>

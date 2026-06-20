@@ -17,7 +17,7 @@ export default async function DashboardLayout({
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-y-auto bg-pigeon-bg p-8">
+        <main className="flex-1 overflow-y-auto bg-pigeon-cream p-8">
           {children}
         </main>
       </div>

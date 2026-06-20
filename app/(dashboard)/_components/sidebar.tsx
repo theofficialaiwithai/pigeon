@@ -16,10 +16,10 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-pigeon-border bg-white">
+    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-pigeon-warm-rule bg-white">
       {/* Logo */}
       <div className="p-6">
-        <span className="font-heading text-xl font-bold text-pigeon-primary">
+        <span className="font-heading text-xl font-bold text-pigeon-ink">
           🐦 Pigeon
         </span>
       </div>
@@ -35,8 +35,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-pigeon-bg text-pigeon-primary"
-                  : "text-pigeon-muted hover:bg-pigeon-bg hover:text-pigeon-primary"
+                  ? "bg-pigeon-cream text-pigeon-ink"
+                  : "text-pigeon-ink-muted hover:bg-pigeon-cream hover:text-pigeon-ink"
               )}
             >
               <Icon size={16} strokeWidth={active ? 2.5 : 2} />
@@ -47,7 +47,7 @@ export function Sidebar() {
       </nav>
 
       {/* User button */}
-      <div className="border-t border-pigeon-border p-5">
+      <div className="border-t border-pigeon-warm-rule p-5">
         <UserButton afterSignOutUrl="/" />
       </div>
     </aside>

@@ -9,7 +9,7 @@ export default function DashboardLoading() {
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-pigeon-border bg-white p-6 space-y-3">
+          <div key={i} className="rounded-xl border border-pigeon-warm-rule bg-white p-6 space-y-3">
             <div className="flex items-start justify-between gap-3">
               <Skeleton className="h-6 w-48" />
               <Skeleton className="h-5 w-20 rounded-full" />

@@ -63,10 +63,10 @@ export function OnboardingModal() {
     <Dialog open={open} onOpenChange={(next) => { if (!next) dismiss(); }}>
       <DialogContent showCloseButton={false} className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-pigeon-primary">
+          <DialogTitle className="text-lg font-semibold text-pigeon-ink">
             {current.title}
           </DialogTitle>
-          <DialogDescription className="text-sm text-pigeon-muted leading-relaxed">
+          <DialogDescription className="text-sm text-pigeon-ink-muted leading-relaxed">
             {current.description}
           </DialogDescription>
         </DialogHeader>
@@ -79,8 +79,8 @@ export function OnboardingModal() {
               className={cn(
                 "h-2 w-2 rounded-full transition-colors",
                 i === step
-                  ? "bg-pigeon-primary"
-                  : "bg-pigeon-primary/20"
+                  ? "bg-pigeon-ink"
+                  : "bg-pigeon-ink/20"
               )}
             />
           ))}

@@ -67,7 +67,7 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
         <button
           onClick={handleDisconnect}
           disabled={loading}
-          className="text-xs text-pigeon-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
+          className="text-xs text-pigeon-ink-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
         >
           {loading ? "Disconnecting…" : "Disconnect"}
         </button>
@@ -86,12 +86,12 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
             onChange={(e) => setClientId(e.target.value)}
             placeholder="Client ID"
             autoComplete="off"
-            className="w-full rounded-lg border border-pigeon-border bg-white px-3 py-1.5 pr-12 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+            className="w-full rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1.5 pr-12 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
           />
           <button
             type="button"
             onClick={() => setShowId((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-muted hover:text-gray-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-ink-muted hover:text-gray-700"
           >
             {showId ? "Hide" : "Show"}
           </button>
@@ -104,12 +104,12 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
             onChange={(e) => setClientSecret(e.target.value)}
             placeholder="Client Secret"
             autoComplete="off"
-            className="w-full rounded-lg border border-pigeon-border bg-white px-3 py-1.5 pr-12 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+            className="w-full rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1.5 pr-12 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
           />
           <button
             type="button"
             onClick={() => setShowSecret((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-muted hover:text-gray-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-pigeon-ink-muted hover:text-gray-700"
           >
             {showSecret ? "Hide" : "Show"}
           </button>
@@ -117,18 +117,18 @@ export function KajabiConnectCard({ initialAccountName }: Props) {
         <button
           type="submit"
           disabled={loading || !clientId.trim() || !clientSecret.trim()}
-          className="shrink-0 rounded-lg bg-pigeon-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-primary/90 disabled:opacity-50 transition-colors"
+          className="shrink-0 rounded-lg bg-pigeon-ink px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-ink/90 disabled:opacity-50 transition-colors"
         >
           {loading ? "Connecting…" : "Connect Kajabi →"}
         </button>
       </div>
-      <p className="text-xs text-pigeon-muted">
+      <p className="text-xs text-pigeon-ink-muted">
         Find this in{" "}
         <a
           href="https://app.kajabi.com/admin/settings/public_api"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-pigeon-primary"
+          className="underline underline-offset-2 hover:text-pigeon-ink"
         >
           Kajabi → Settings → Public API → Create User API Key
         </a>

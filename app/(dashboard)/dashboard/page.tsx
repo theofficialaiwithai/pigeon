@@ -57,7 +57,7 @@ export default async function DashboardPage() {
           href="/cohorts/new"
           className={cn(
             buttonVariants(),
-            "bg-pigeon-accent text-white hover:bg-orange-600"
+            "bg-pigeon-sienna text-white hover:bg-orange-600"
           )}
         >
           + New Cohort
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
             return (
               <Card
                 key={cohort.id}
-                className="rounded-xl border border-pigeon-border bg-white shadow-sm"
+                className="rounded-xl border border-pigeon-warm-rule bg-white shadow-sm"
               >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-3">
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
                       {status.label}
                     </span>
                   </div>
-                  <p className="mt-2 font-sans text-sm text-pigeon-muted">
+                  <p className="mt-2 font-sans text-sm text-pigeon-ink-muted">
                     Cart open {fmtDate(cohort.cartOpenDate)} → closes{" "}
                     {fmtDate(cohort.cartCloseDate)}
                   </p>
@@ -97,14 +97,14 @@ export default async function DashboardPage() {
                       href={`/cohorts/${cohort.id}`}
                       className={cn(
                         buttonVariants({ variant: "outline" }),
-                        "border-pigeon-border text-pigeon-primary hover:bg-pigeon-bg"
+                        "border-pigeon-warm-rule text-pigeon-ink hover:bg-pigeon-cream"
                       )}
                     >
                       Continue →
                     </Link>
                     <Link
                       href={`/cohorts/${cohort.id}/export`}
-                      className="text-xs text-pigeon-muted hover:text-pigeon-primary underline underline-offset-2 transition-colors"
+                      className="text-xs text-pigeon-ink-muted hover:text-pigeon-ink underline underline-offset-2 transition-colors"
                     >
                       Export to Kit
                     </Link>
@@ -120,14 +120,14 @@ export default async function DashboardPage() {
           <h3 className="mt-4 font-heading text-xl font-semibold text-gray-900">
             No cohorts yet.
           </h3>
-          <p className="mt-2 font-sans text-sm text-pigeon-muted">
+          <p className="mt-2 font-sans text-sm text-pigeon-ink-muted">
             Start your first launch sequence.
           </p>
           <Link
             href="/cohorts/new"
             className={cn(
               buttonVariants(),
-              "mt-6 bg-pigeon-accent text-white hover:bg-orange-600"
+              "mt-6 bg-pigeon-sienna text-white hover:bg-orange-600"
             )}
           >
             + New Cohort

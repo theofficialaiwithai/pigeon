@@ -64,18 +64,18 @@ export default async function ExportPage({
   if (!kitConn && !webhookConn) {
     return (
       <div className="max-w-lg">
-        <div className="bg-white rounded-xl border border-pigeon-border p-8 text-center space-y-4">
+        <div className="bg-white rounded-xl border border-pigeon-warm-rule p-8 text-center space-y-4">
           <div className="text-3xl">📬</div>
-          <h2 className="font-heading text-lg font-semibold text-pigeon-primary">
+          <h2 className="font-heading text-lg font-semibold text-pigeon-ink">
             Connect an email platform to export
           </h2>
-          <p className="text-sm text-pigeon-muted">
+          <p className="text-sm text-pigeon-ink-muted">
             Connect Kit (ConvertKit) to export directly as scheduled broadcasts, or
             add a Zapier / Make webhook to send your sequence to any other platform.
           </p>
           <Link
             href="/settings"
-            className="inline-flex items-center rounded-lg bg-pigeon-primary px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
+            className="inline-flex items-center rounded-lg bg-pigeon-ink px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-ink/90 transition-colors"
           >
             Go to Settings →
           </Link>
@@ -94,17 +94,17 @@ export default async function ExportPage({
   if (!sequence) {
     return (
       <div className="max-w-lg">
-        <div className="bg-white rounded-xl border border-pigeon-border p-8 text-center space-y-4">
+        <div className="bg-white rounded-xl border border-pigeon-warm-rule p-8 text-center space-y-4">
           <div className="text-3xl">✉️</div>
-          <h2 className="font-heading text-lg font-semibold text-pigeon-primary">
+          <h2 className="font-heading text-lg font-semibold text-pigeon-ink">
             No sequence yet
           </h2>
-          <p className="text-sm text-pigeon-muted">
+          <p className="text-sm text-pigeon-ink-muted">
             Generate your email sequence first before exporting.
           </p>
           <Link
             href={`/voice-profile?from=${params.id}`}
-            className="inline-flex items-center rounded-lg bg-pigeon-primary px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
+            className="inline-flex items-center rounded-lg bg-pigeon-ink px-5 py-2 text-sm font-semibold text-white hover:bg-pigeon-ink/90 transition-colors"
           >
             Go to Sequence →
           </Link>

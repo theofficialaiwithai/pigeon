@@ -149,7 +149,7 @@ function BodyEditor({
 function StatusBadge({ status }: { status: string }) {
   if (status === "approved") {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-pigeon-success/10 text-pigeon-success">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-pigeon-sage/10 text-pigeon-sage">
         <CheckIcon className="w-3 h-3" /> Approved
       </span>
     );
@@ -183,7 +183,7 @@ function RegenerateButton({
       size="sm"
       onClick={onClick}
       disabled={isRegenerating}
-      className="text-pigeon-muted gap-1"
+      className="text-pigeon-ink-muted gap-1"
     >
       {isRegenerating ? (
         <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
@@ -217,17 +217,17 @@ function EmailCard({
   const approved = email.approvalStatus === "approved";
 
   return (
-    <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
+    <Card className="bg-white rounded-xl p-6 border border-pigeon-warm-rule space-y-4">
       {/* Header row */}
       <div className="flex items-center gap-3">
-        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-primary text-white text-sm font-bold flex items-center justify-center">
+        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-ink text-white text-sm font-bold flex items-center justify-center">
           {email.position}
         </span>
-        <span className="font-sans text-sm font-semibold text-pigeon-primary">
+        <span className="font-sans text-sm font-semibold text-pigeon-ink">
           {TYPE_LABELS[email.emailType] ?? email.emailType}
         </span>
         {email.scheduledSendAt && (
-          <span className="font-sans text-sm text-pigeon-muted">
+          <span className="font-sans text-sm text-pigeon-ink-muted">
             · {fmtDate(email.scheduledSendAt)}
           </span>
         )}
@@ -242,7 +242,7 @@ function EmailCard({
         placeholder="Subject line…"
         onChange={(e) => onChange("subjectLine", e.target.value)}
         disabled={isRegenerating}
-        className="w-full font-heading text-[18px] font-semibold text-pigeon-primary border-b border-transparent focus:border-pigeon-primary outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
+        className="w-full font-heading text-[18px] font-semibold text-pigeon-ink border-b border-transparent focus:border-pigeon-ink outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
       {/* Preview text */}
@@ -251,13 +251,13 @@ function EmailCard({
         placeholder="Preview text…"
         onChange={(e) => onChange("previewText", e.target.value)}
         disabled={isRegenerating}
-        className="w-full font-sans text-sm text-pigeon-muted border-b border-transparent focus:border-pigeon-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
+        className="w-full font-sans text-sm text-pigeon-ink-muted border-b border-transparent focus:border-pigeon-ink-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
       {/* Body */}
       <div
         className={cn(
-          "border border-pigeon-border rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-primary/30 transition-shadow min-h-48",
+          "border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-48",
           isRegenerating && "opacity-50 pointer-events-none"
         )}
       >
@@ -269,11 +269,11 @@ function EmailCard({
       </div>
 
       {/* Bottom actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+      <div className="flex items-center justify-between pt-2 border-t border-pigeon-warm-rule">
         <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-sage/10 text-pigeon-sage">
               <CheckIcon className="w-3.5 h-3.5" /> Approved
             </span>
             <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
@@ -283,7 +283,7 @@ function EmailCard({
         ) : (
           <Button
             size="sm"
-            className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
+            className="bg-pigeon-ink hover:bg-pigeon-ink/90 text-white"
             onClick={onApprove}
             disabled={isRegenerating}
           >
@@ -293,7 +293,7 @@ function EmailCard({
       </div>
 
       {regenerateError && (
-        <p className="text-xs text-pigeon-error">{regenerateError}</p>
+        <p className="text-xs text-pigeon-sienna">{regenerateError}</p>
       )}
     </Card>
   );
@@ -331,17 +331,17 @@ function FinalCallCard({
   if (!activeVariant) return null;
 
   return (
-    <Card className="bg-white rounded-xl p-6 border border-pigeon-border space-y-4">
+    <Card className="bg-white rounded-xl p-6 border border-pigeon-warm-rule space-y-4">
       {/* Header row */}
       <div className="flex items-center gap-3">
-        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-primary text-white text-sm font-bold flex items-center justify-center">
+        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-pigeon-ink text-white text-sm font-bold flex items-center justify-center">
           {email.position}
         </span>
-        <span className="font-sans text-sm font-semibold text-pigeon-primary">
+        <span className="font-sans text-sm font-semibold text-pigeon-ink">
           {TYPE_LABELS[email.emailType] ?? email.emailType}
         </span>
         {email.scheduledSendAt && (
-          <span className="font-sans text-sm text-pigeon-muted">
+          <span className="font-sans text-sm text-pigeon-ink-muted">
             · {fmtDate(email.scheduledSendAt)}
           </span>
         )}
@@ -357,15 +357,15 @@ function FinalCallCard({
           isRegenerating && "opacity-50 pointer-events-none"
         )}
       >
-        <div className="font-heading text-[18px] font-semibold text-pigeon-primary">
+        <div className="font-heading text-[18px] font-semibold text-pigeon-ink">
           {activeVariant.subjectLine}
         </div>
         {activeVariant.previewText && (
-          <div className="font-sans text-sm text-pigeon-muted">
+          <div className="font-sans text-sm text-pigeon-ink-muted">
             {activeVariant.previewText}
           </div>
         )}
-        <div className="border border-pigeon-border rounded-lg p-3 min-h-48">
+        <div className="border border-pigeon-warm-rule rounded-lg p-3 min-h-48">
           <BodyDisplay html={activeVariant.bodyHtml} />
         </div>
       </div>
@@ -384,8 +384,8 @@ function FinalCallCard({
               className={cn(
                 "flex-1",
                 isActive
-                  ? "bg-pigeon-primary hover:bg-pigeon-primary/90 text-white border-pigeon-primary"
-                  : cn("text-pigeon-muted", isDimmed && "opacity-50")
+                  ? "bg-pigeon-ink hover:bg-pigeon-ink/90 text-white border-pigeon-ink"
+                  : cn("text-pigeon-ink-muted", isDimmed && "opacity-50")
               )}
               onClick={() => setActiveTab(v.variantType)}
             >
@@ -396,11 +396,11 @@ function FinalCallCard({
       </div>
 
       {/* Bottom actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-pigeon-border">
+      <div className="flex items-center justify-between pt-2 border-t border-pigeon-warm-rule">
         <RegenerateButton isRegenerating={isRegenerating} onClick={onRegenerate} />
         {approved ? (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-success/10 text-pigeon-success">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-pigeon-sage/10 text-pigeon-sage">
               <CheckIcon className="w-3.5 h-3.5" /> Approved
             </span>
             <Button variant="ghost" size="sm" onClick={onEdit} disabled={isRegenerating}>
@@ -410,7 +410,7 @@ function FinalCallCard({
         ) : (
           <div className="flex items-center gap-2">
             {selectedVariantId === activeVariant.id ? (
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-success">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-pigeon-sage">
                 <CheckIcon className="w-4 h-4" /> Selected
               </span>
             ) : (
@@ -426,7 +426,7 @@ function FinalCallCard({
             {selectedVariantId === activeVariant.id && (
               <Button
                 size="sm"
-                className="bg-pigeon-primary hover:bg-pigeon-primary/90 text-white"
+                className="bg-pigeon-ink hover:bg-pigeon-ink/90 text-white"
                 disabled={isRegenerating}
                 onClick={onApprove}
               >
@@ -438,7 +438,7 @@ function FinalCallCard({
       </div>
 
       {regenerateError && (
-        <p className="text-xs text-pigeon-error">{regenerateError}</p>
+        <p className="text-xs text-pigeon-sienna">{regenerateError}</p>
       )}
     </Card>
   );
@@ -638,17 +638,17 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
     <div className="p-8 max-w-4xl mx-auto space-y-6">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-pigeon-muted hover:text-pigeon-primary transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-pigeon-ink-muted hover:text-pigeon-ink transition-colors"
       >
         <ChevronLeftIcon size={14} />
         Dashboard
       </Link>
-      <h1 className="font-heading text-[28px] font-bold text-pigeon-primary leading-tight">
+      <h1 className="font-heading text-[28px] font-bold text-pigeon-ink leading-tight">
         {programName} — Launch Sequence
       </h1>
 
       <Progress value={progressPct}>
-        <ProgressLabel className="text-sm font-medium text-pigeon-muted">
+        <ProgressLabel className="text-sm font-medium text-pigeon-ink-muted">
           {approvedCount} of 9 approved
         </ProgressLabel>
       </Progress>
@@ -685,7 +685,7 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
       </div>
 
       {/* Bottom bar */}
-      <div className="flex items-center justify-between pt-4 border-t border-pigeon-border">
+      <div className="flex items-center justify-between pt-4 border-t border-pigeon-warm-rule">
         <Button
           variant="outline"
           onClick={() => router.push(`/cohorts/${cohortId}/calendar`)}
@@ -693,7 +693,7 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
           View Calendar →
         </Button>
         <Button
-          className="bg-pigeon-accent hover:bg-pigeon-accent/90 text-white"
+          className="bg-pigeon-sienna hover:bg-pigeon-sienna/90 text-white"
           onClick={() => setConfirmOpen(true)}
         >
           Approve All
@@ -719,7 +719,7 @@ export function SequenceEditorClient({ cohortId, programName, initialEmails }: P
               Cancel
             </Button>
             <Button
-              className="bg-pigeon-accent hover:bg-pigeon-accent/90 text-white"
+              className="bg-pigeon-sienna hover:bg-pigeon-sienna/90 text-white"
               onClick={handleApproveAll}
               disabled={approvingAll}
             >

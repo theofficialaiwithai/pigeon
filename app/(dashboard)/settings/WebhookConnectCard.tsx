@@ -89,12 +89,12 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
               setTestResult(null);
             }}
             placeholder="https://hooks.zapier.com/hooks/catch/…"
-            className="flex-1 max-w-sm rounded-lg border border-pigeon-border bg-white px-3 py-1.5 text-sm text-gray-800 outline-none focus:border-pigeon-primary focus:ring-2 focus:ring-pigeon-primary/20"
+            className="flex-1 max-w-sm rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1.5 text-sm text-gray-800 outline-none focus:border-pigeon-ink focus:ring-2 focus:ring-pigeon-ink/20"
           />
           <button
             type="submit"
             disabled={saving || !webhookUrl.trim()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-pigeon-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-primary/90 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-pigeon-ink px-4 py-1.5 text-sm font-semibold text-white hover:bg-pigeon-ink/90 disabled:opacity-50 transition-colors"
           >
             {saving && <Loader2Icon size={13} className="animate-spin" />}
             {saving ? "Saving…" : "Save"}
@@ -113,7 +113,7 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
           <button
             onClick={handleTest}
             disabled={testing}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-pigeon-border bg-white px-3 py-1 text-xs font-semibold text-pigeon-primary hover:bg-pigeon-bg disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-pigeon-warm-rule bg-white px-3 py-1 text-xs font-semibold text-pigeon-ink hover:bg-pigeon-cream disabled:opacity-50 transition-colors"
           >
             {testing && <Loader2Icon size={12} className="animate-spin" />}
             {testing ? "Sending…" : "Send Test Payload"}
@@ -121,7 +121,7 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
           <button
             onClick={handleDisconnect}
             disabled={saving}
-            className="text-xs text-pigeon-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
+            className="text-xs text-pigeon-ink-muted underline underline-offset-2 hover:text-red-600 disabled:opacity-50 transition-colors"
           >
             Disconnect
           </button>
@@ -141,7 +141,7 @@ export function WebhookConnectCard({ initialWebhookUrl }: Props) {
       )}
 
       {/* Helper text */}
-      <div className="space-y-3 rounded-lg bg-pigeon-bg border border-pigeon-border p-4 text-xs text-pigeon-muted leading-relaxed">
+      <div className="space-y-3 rounded-lg bg-pigeon-cream border border-pigeon-warm-rule p-4 text-xs text-pigeon-ink-muted leading-relaxed">
         <div>
           <p className="font-semibold text-gray-700 mb-1">Zapier</p>
           <p>

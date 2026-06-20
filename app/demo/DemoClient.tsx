@@ -237,7 +237,7 @@ function GapLabel({ days }: { days: number | null }) {
     );
   return (
     <div className="flex items-center gap-3 py-1 pl-14">
-      <span className="text-xs text-pigeon-muted">
+      <span className="text-xs text-pigeon-ink-muted">
         {days} day{days !== 1 ? "s" : ""} gap
       </span>
     </div>
@@ -262,14 +262,14 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
   const paragraphs = stripHtmlToText(displayBody);
 
   return (
-    <div className="bg-white rounded-xl border border-pigeon-border shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-pigeon-warm-rule shadow-sm overflow-hidden">
       {/* Header */}
       <div className="px-5 pt-5 pb-3 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-pigeon-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-pigeon-ink text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
           {email.position}
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-xs font-semibold text-pigeon-muted uppercase tracking-wide">
+          <span className="text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide">
             {TYPE_LABELS[email.emailType] ?? email.emailType}
           </span>
         </div>
@@ -279,11 +279,11 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
       </div>
 
       {/* Subject + preview */}
-      <div className="px-5 pb-3 border-b border-pigeon-border">
-        <div className="font-heading text-lg font-semibold text-pigeon-primary leading-snug mb-1">
+      <div className="px-5 pb-3 border-b border-pigeon-warm-rule">
+        <div className="font-heading text-lg font-semibold text-pigeon-ink leading-snug mb-1">
           {displaySubject}
         </div>
-        <div className="text-sm text-pigeon-muted">{displayPreview}</div>
+        <div className="text-sm text-pigeon-ink-muted">{displayPreview}</div>
       </div>
 
       {/* Body */}
@@ -297,8 +297,8 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
 
       {/* Variant switcher for final_call */}
       {hasVariants && (
-        <div className="px-5 pb-4 border-t border-pigeon-border pt-4">
-          <p className="text-xs font-semibold text-pigeon-muted uppercase tracking-wide mb-3">
+        <div className="px-5 pb-4 border-t border-pigeon-warm-rule pt-4">
+          <p className="text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide mb-3">
             Variants
           </p>
           <div className="flex gap-2 flex-wrap">
@@ -314,8 +314,8 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
                 onClick={() => setActiveVariant(key)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                   activeVariant === key
-                    ? "bg-pigeon-primary text-white"
-                    : "border border-pigeon-border text-pigeon-muted hover:border-pigeon-primary/40"
+                    ? "bg-pigeon-ink text-white"
+                    : "border border-pigeon-warm-rule text-pigeon-ink-muted hover:border-pigeon-ink/40"
                 }`}
               >
                 {label}
@@ -326,19 +326,19 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
       )}
 
       {/* Action row */}
-      <div className="px-5 pb-4 flex items-center gap-2 border-t border-pigeon-border pt-3">
+      <div className="px-5 pb-4 flex items-center gap-2 border-t border-pigeon-warm-rule pt-3">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => toast("Demo mode — sign in to regenerate emails.")}
-          className="text-pigeon-muted"
+          className="text-pigeon-ink-muted"
         >
           Regenerate
         </Button>
         <Button
           size="sm"
           onClick={() => toast("Demo mode — sign in to approve emails.")}
-          className="bg-pigeon-success/10 text-pigeon-success border border-pigeon-success/30 hover:bg-pigeon-success/10"
+          className="bg-pigeon-sage/10 text-pigeon-sage border border-pigeon-sage/30 hover:bg-pigeon-sage/10"
         >
           Approve ✓
         </Button>
@@ -351,23 +351,23 @@ function SequenceEmailCard({ email }: { email: DemoEmail }) {
 
 function CalendarEmailCard({ email }: { email: DemoEmail }) {
   const dotColor =
-    email.approvalStatus === "approved" ? "bg-pigeon-success" : "bg-pigeon-primary";
+    email.approvalStatus === "approved" ? "bg-pigeon-sage" : "bg-pigeon-ink";
 
   return (
     <div className="relative flex items-start">
       {/* Timeline dot */}
       <div
-        className={`absolute left-0 top-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ring-2 ring-pigeon-bg flex-shrink-0 ${dotColor}`}
+        className={`absolute left-0 top-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ring-2 ring-pigeon-cream flex-shrink-0 ${dotColor}`}
       >
         {email.position}
       </div>
 
       {/* Card */}
-      <div className="ml-12 flex-1 bg-white rounded-xl border border-pigeon-border shadow-sm mb-3 overflow-hidden">
+      <div className="ml-12 flex-1 bg-white rounded-xl border border-pigeon-warm-rule shadow-sm mb-3 overflow-hidden">
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <div className="font-heading text-xs font-semibold text-pigeon-muted uppercase tracking-wide mb-1">
+              <div className="font-heading text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide mb-1">
                 {TYPE_LABELS[email.emailType] ?? email.emailType}
               </div>
               <div className="font-sans text-sm text-gray-800 font-medium leading-snug truncate">
@@ -375,7 +375,7 @@ function CalendarEmailCard({ email }: { email: DemoEmail }) {
               </div>
             </div>
             <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-              <span className="text-xs text-pigeon-muted whitespace-nowrap">
+              <span className="text-xs text-pigeon-ink-muted whitespace-nowrap">
                 {fmtSendAt(email.scheduledSendAt)}
               </span>
               <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
@@ -444,33 +444,33 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
   ).length;
 
   return (
-    <div className="min-h-screen bg-pigeon-bg">
+    <div className="min-h-screen bg-pigeon-cream">
       {/* Top nav */}
-      <nav className="bg-white border-b border-pigeon-border px-6 py-3 flex items-center justify-between">
+      <nav className="bg-white border-b border-pigeon-warm-rule px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="font-heading text-lg font-bold text-pigeon-primary">
+          <span className="font-heading text-lg font-bold text-pigeon-ink">
             🐦 Pigeon
           </span>
-          <span className="inline-flex items-center rounded-full bg-pigeon-accent/10 text-pigeon-accent px-2.5 py-0.5 text-xs font-semibold">
+          <span className="inline-flex items-center rounded-full bg-pigeon-sienna/10 text-pigeon-sienna px-2.5 py-0.5 text-xs font-semibold">
             Demo Mode
           </span>
         </div>
         <Link
           href="/sign-in"
-          className="text-sm font-medium text-pigeon-primary hover:text-pigeon-primary/80 transition-colors"
+          className="text-sm font-medium text-pigeon-ink hover:text-pigeon-ink/80 transition-colors"
         >
           Sign in to create your own →
         </Link>
       </nav>
 
       {/* Demo banner */}
-      <div className="bg-pigeon-primary text-white px-6 py-3 flex flex-col items-center gap-1 sm:flex-row sm:justify-between">
+      <div className="bg-pigeon-ink text-white px-6 py-3 flex flex-col items-center gap-1 sm:flex-row sm:justify-between">
         <p className="text-sm font-medium text-center sm:text-left">
           This is a live demo — Jordan&apos;s sequence was generated by Pigeon in 12 seconds.
         </p>
         <Link
           href="/sign-in"
-          className="shrink-0 rounded-lg bg-pigeon-accent px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
+          className="shrink-0 rounded-lg bg-pigeon-sienna px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
         >
           Start Your Own Sequence →
         </Link>
@@ -480,10 +480,10 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Program header */}
         <div className="mb-6">
-          <h1 className="font-heading text-2xl font-extrabold text-pigeon-primary">
+          <h1 className="font-heading text-2xl font-extrabold text-pigeon-ink">
             {cohort.programName}
           </h1>
-          <p className="text-sm text-pigeon-muted mt-1">
+          <p className="text-sm text-pigeon-ink-muted mt-1">
             Cart open {fmtMilestoneDate(cohort.cartOpenDate)} · Closes{" "}
             {fmtMilestoneDate(cohort.cartCloseDate)} · Cohort starts{" "}
             {fmtMilestoneDate(cohort.cohortStartDate)}
@@ -491,15 +491,15 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
         </div>
 
         {/* Tab switcher */}
-        <div className="flex gap-6 border-b border-pigeon-border mb-6">
+        <div className="flex gap-6 border-b border-pigeon-warm-rule mb-6">
           {(["sequence", "calendar", "voice"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-semibold transition-colors ${
                 activeTab === tab
-                  ? "border-b-2 border-pigeon-primary text-pigeon-primary"
-                  : "text-pigeon-muted hover:text-gray-700"
+                  ? "border-b-2 border-pigeon-ink text-pigeon-ink"
+                  : "text-pigeon-ink-muted hover:text-gray-700"
               }`}
             >
               {tab === "sequence" ? "Sequence Editor" : tab === "calendar" ? "Launch Calendar" : "Voice Fingerprint"}
@@ -512,8 +512,8 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
           <div>
             {/* Progress bar */}
             <div className="flex items-center justify-between mb-6">
-              <span className="text-sm text-pigeon-muted">
-                <span className="font-semibold text-pigeon-primary">
+              <span className="text-sm text-pigeon-ink-muted">
+                <span className="font-semibold text-pigeon-ink">
                   {approvedCount}
                 </span>{" "}
                 of {cohort.emails.length} emails approved
@@ -522,7 +522,7 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
                 size="sm"
                 disabled
                 title="Demo mode — sign in to use this feature"
-                className="bg-pigeon-success/10 text-pigeon-success border border-pigeon-success/30"
+                className="bg-pigeon-sage/10 text-pigeon-sage border border-pigeon-sage/30"
               >
                 Approve All
               </Button>
@@ -543,7 +543,7 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
                     {idx > 0 && (
                       <div className="flex items-center gap-3 py-1 px-1 mb-1">
                         {days !== null && (
-                          <span className="text-xs text-pigeon-muted">
+                          <span className="text-xs text-pigeon-ink-muted">
                             {days === 0
                               ? "⚠ Same day"
                               : `${days} day${days !== 1 ? "s" : ""} gap`}
@@ -563,35 +563,35 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
         {activeTab === "calendar" && (
           <div>
             {/* Disclaimer */}
-            <p className="text-xs text-pigeon-muted mb-5 text-center italic">
+            <p className="text-xs text-pigeon-ink-muted mb-5 text-center italic">
               This is a demo calendar — send dates are for illustration only.
             </p>
 
             {/* Key dates */}
-            <div className="bg-white rounded-xl border border-pigeon-border p-5 mb-6">
-              <p className="text-xs font-semibold text-pigeon-muted uppercase tracking-wide mb-4">
+            <div className="bg-white rounded-xl border border-pigeon-warm-rule p-5 mb-6">
+              <p className="text-xs font-semibold text-pigeon-ink-muted uppercase tracking-wide mb-4">
                 Key Dates
               </p>
               <div className="flex items-center gap-2">
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-accent">
+                  <div className="text-sm font-bold text-pigeon-sienna">
                     {fmtMilestoneDate(cohort.cartOpenDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cart Open</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cart Open</div>
                 </div>
-                <div className="flex-1 h-px bg-pigeon-border" />
+                <div className="flex-1 h-px bg-pigeon-warm-rule" />
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-primary">
+                  <div className="text-sm font-bold text-pigeon-ink">
                     {fmtMilestoneDate(cohort.cartCloseDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cart Close</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cart Close</div>
                 </div>
-                <div className="flex-1 h-px bg-pigeon-border" />
+                <div className="flex-1 h-px bg-pigeon-warm-rule" />
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-bold text-pigeon-success">
+                  <div className="text-sm font-bold text-pigeon-sage">
                     {fmtMilestoneDate(cohort.cohortStartDate)}
                   </div>
-                  <div className="text-xs text-pigeon-muted mt-0.5">Cohort Start</div>
+                  <div className="text-xs text-pigeon-ink-muted mt-0.5">Cohort Start</div>
                 </div>
               </div>
             </div>
@@ -599,7 +599,7 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
             {/* Timeline */}
             <div className="relative ml-4">
               {/* Continuous vertical line */}
-              <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-pigeon-border" />
+              <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-pigeon-warm-rule" />
 
               <div>
                 {cohort.emails.map((email, idx) => {
@@ -621,15 +621,15 @@ export function DemoClient({ cohort }: { cohort: DemoCohort }) {
             </div>
 
             {/* Sticky bottom bar */}
-            <div className="sticky bottom-0 bg-pigeon-surface border-t border-pigeon-border -mx-4 mt-8 px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-pigeon-muted">
-                <span className="font-semibold text-pigeon-primary">
+            <div className="sticky bottom-0 bg-white border-t border-pigeon-warm-rule -mx-4 mt-8 px-4 py-3 flex items-center justify-between">
+              <span className="text-sm text-pigeon-ink-muted">
+                <span className="font-semibold text-pigeon-ink">
                   {approvedCount}
                 </span>{" "}
                 of {cohort.emails.length} emails approved
               </span>
               <Button
-                className="bg-pigeon-accent text-white hover:bg-pigeon-accent/90"
+                className="bg-pigeon-sienna text-white hover:bg-pigeon-sienna/90"
                 onClick={() => downloadAllIcs(cohort.emails, cohort.programName)}
               >
                 Export Full Launch Calendar
@@ -697,13 +697,13 @@ function VoiceFingerprintPanel() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-bold text-pigeon-primary">Jordan&apos;s Voice Fingerprint</h2>
-        <p className="text-sm text-pigeon-muted mt-1">
+        <h2 className="font-heading text-xl font-bold text-pigeon-ink">Jordan&apos;s Voice Fingerprint</h2>
+        <p className="text-sm text-pigeon-ink-muted mt-1">
           Pigeon analyzed 5 of Jordan&apos;s past emails and extracted these writing dimensions. Every email in this sequence is calibrated to match.
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-pigeon-border p-6 flex flex-col items-center">
+      <div className="bg-white rounded-xl border border-pigeon-warm-rule p-6 flex flex-col items-center">
         <svg viewBox="0 0 400 400" className="w-full max-w-sm">
           {/* Grid rings */}
           {[0.25, 0.5, 0.75, 1].map((f) => (
@@ -741,16 +741,16 @@ function VoiceFingerprintPanel() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {JORDAN_DIMENSIONS.map((d) => (
-          <div key={d.label} className="bg-white rounded-lg border border-pigeon-border p-3 text-center">
-            <div className="text-2xl font-bold text-pigeon-primary font-heading">{d.score}</div>
-            <div className="text-xs text-pigeon-muted mt-0.5">{d.label}</div>
+          <div key={d.label} className="bg-white rounded-lg border border-pigeon-warm-rule p-3 text-center">
+            <div className="text-2xl font-bold text-pigeon-ink font-heading">{d.score}</div>
+            <div className="text-xs text-pigeon-ink-muted mt-0.5">{d.label}</div>
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-pigeon-muted text-center">
+      <p className="text-xs text-pigeon-ink-muted text-center">
         Pigeon extracts 8 voice dimensions from your writing samples.{" "}
-        <Link href="/sign-in" className="underline underline-offset-2 hover:text-pigeon-primary">
+        <Link href="/sign-in" className="underline underline-offset-2 hover:text-pigeon-ink">
           Build your own profile →
         </Link>
       </p>

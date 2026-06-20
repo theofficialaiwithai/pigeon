@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, DM_Serif_Display, Instrument_Serif } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { PendoInitializer } from "@/components/PendoInitializer";
@@ -16,6 +16,20 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-inter",
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-display",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  variable: "--font-accent",
 });
 
 export const metadata: Metadata = {
@@ -34,6 +48,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <head>
+          <link
+            href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap"
+            rel="stylesheet"
+          />
           <Script id="pendo-install" strategy="beforeInteractive">{`
 (function(apiKey){
     (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
@@ -45,7 +63,7 @@ export default function RootLayout({
 `}</Script>
         </head>
         <body
-          className={`${plusJakartaSans.variable} ${inter.variable} font-sans antialiased`}
+          className={`${plusJakartaSans.variable} ${inter.variable} ${dmSerifDisplay.variable} ${instrumentSerif.variable} font-sans antialiased`}
         >
           <PendoInitializer />
           {children}
