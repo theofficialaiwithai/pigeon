@@ -16,7 +16,7 @@ export default function LandingPage() {
               Live Demo
             </Link>
             <Link
-              href="/sign-in"
+              href="/sign-up"
               className="rounded-lg bg-pigeon-primary px-4 py-2 text-sm font-semibold text-white hover:bg-pigeon-primary/90 transition-colors"
             >
               Get Started →
@@ -60,7 +60,7 @@ export default function LandingPage() {
                 See Jordan&apos;s Demo Sequence →
               </Link>
               <Link
-                href="/sign-in"
+                href="/sign-up"
                 className="inline-flex items-center justify-center rounded-xl border border-pigeon-border bg-white px-7 py-3.5 text-sm font-semibold text-pigeon-primary hover:bg-pigeon-bg transition-colors"
               >
                 Start for Free
@@ -225,7 +225,7 @@ export default function LandingPage() {
               ))}
             </ul>
             <Link
-              href="/sign-in"
+              href="/sign-up"
               className="mt-8 block rounded-xl bg-pigeon-primary py-3 text-center text-sm font-bold text-white hover:bg-pigeon-primary/90 transition-colors"
             >
               Start Free →
