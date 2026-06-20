@@ -98,6 +98,7 @@ AVOID generic AI writing patterns unless the Voice Profile examples show the tea
 
 Write 9 emails for the program below.
 For final_call: write 3 variants (urgency_led, results_led, personal_note).
+Keep each email body to 150–200 words maximum. Be concise — launch emails perform better short.
 Respond with raw JSON only. Do not wrap the response in markdown code fences or backticks. Do not include any text before or after the JSON object.
 
 Schema:
@@ -130,14 +131,25 @@ ${scheduleLines}`;
     messages: [{ role: "user", content: userMessage }],
   });
 
+  if (stopReason === "max_tokens") {
+    console.error("[generate-sequence] Response truncated (stop_reason=max_tokens). Raw length:", rawText.length);
+    console.error("[generate-sequence] Truncated tail:", rawText.slice(-300));
+    throw new Error(
+      "The sequence was too long to generate in one pass. Try shortening your curriculum summary and try again."
+    );
+  }
+
   let parsed: { emails: EmailFromClaude[] };
   try {
     parsed = JSON.parse(extractJSON(rawText)) as { emails: EmailFromClaude[] };
   } catch (parseErr) {
     console.error("[generate-sequence] JSON parse error:", parseErr);
     console.error("[generate-sequence] stop_reason:", stopReason);
-    console.error("[generate-sequence] Raw Claude response:", rawText);
-    throw new Error("Failed to parse Claude response");
+    console.error("[generate-sequence] Raw response (first 1000 chars):", rawText.slice(0, 1000));
+    console.error("[generate-sequence] Raw response (last 500 chars):", rawText.slice(-500));
+    throw new Error(
+      `Failed to parse Claude response (stop_reason=${stopReason}). Check server logs for the raw response.`
+    );
   }
 
   const [sequence] = await db
