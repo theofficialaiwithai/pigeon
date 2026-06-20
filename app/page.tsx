@@ -4,6 +4,11 @@ import { auth } from "@clerk/nextjs/server";
 import { Logo } from "@/components/logo";
 import { RevealSection } from "@/components/landing/reveal-section";
 import { StatsBar } from "@/components/landing/stats-bar";
+import {
+  CalendarVisual,
+  VoiceFingerprintVisual,
+  ExportReadyVisual,
+} from "@/components/landing/how-it-works-visuals";
 
 export default async function LandingPage() {
   const { userId } = await auth();
@@ -150,44 +155,67 @@ export default async function LandingPage() {
         </section>
       </RevealSection>
 
-      {/* How it works */}
+      {/* How it works — bento card version */}
       <RevealSection>
-        <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-20">
+        <section className="border-y border-pigeon-warm-rule bg-pigeon-cream py-24">
           <div className="mx-auto max-w-6xl px-6">
-            <h2 className="mb-14 text-center font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
-              How it works
+
+            {/* Section header */}
+            <div className="mb-6 flex justify-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-pigeon-warm-rule bg-white px-3 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-pigeon-ink" />
+                <span className="text-xs font-semibold text-pigeon-ink-muted">How it works</span>
+              </div>
+            </div>
+            <h2 className="mb-4 text-center font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
+              From blank page to{" "}
+              <span className="text-pigeon-sienna">launch-ready</span>
+              {" "}— in three steps.
             </h2>
+            <p className="mx-auto mb-16 max-w-xl text-center text-base text-pigeon-ink-muted">
+              Tell Pigeon about your cohort, paste a few past emails, and review
+              what comes back — already timed to your calendar.
+            </p>
+
+            {/* Bento grid */}
             <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-              {[
-                {
-                  step: "1",
-                  title: "Tell Pigeon about your cohort",
-                  body: "Program name, curriculum, cart open/close dates, cohort start. Pigeon auto-times every email to your calendar.",
-                },
-                {
-                  step: "2",
-                  title: "Paste 5 of your past emails",
-                  body: "Any emails — launches, newsletters, updates. Pigeon reads how you write, not what you write, to build your Voice Fingerprint.",
-                },
-                {
-                  step: "3",
-                  title: "Review, approve, export",
-                  body: "Get a 9-email sequence pre-timed to your calendar. Edit anything, approve what you love, export directly to ConvertKit.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.step}
-                  className="flex gap-4 rounded-xl p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-                >
-                  <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pigeon-ink font-heading text-xl font-extrabold text-white">
-                    {item.step}
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg font-bold text-pigeon-ink">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">{item.body}</p>
-                  </div>
-                </div>
-              ))}
+
+              {/* Step 1 */}
+              <div>
+                <CalendarVisual />
+                <h4 className="mt-6 font-heading text-lg text-pigeon-ink">
+                  Tell Pigeon about your cohort
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">
+                  Program name, curriculum, cart open/close dates, cohort start.
+                  Pigeon auto-times every email to your calendar.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div>
+                <VoiceFingerprintVisual />
+                <h4 className="mt-6 font-heading text-lg text-pigeon-ink">
+                  Paste 5 of your past emails
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">
+                  Any emails — launches, newsletters, updates. Pigeon reads how
+                  you write, not what you write, to build your Voice Fingerprint.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div>
+                <ExportReadyVisual />
+                <h4 className="mt-6 font-heading text-lg text-pigeon-ink">
+                  Review, approve, export
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-pigeon-ink-muted">
+                  Get a 9-email sequence pre-timed to your calendar. Edit
+                  anything, approve what you love, export directly to ConvertKit.
+                </p>
+              </div>
+
             </div>
           </div>
         </section>

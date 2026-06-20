@@ -77,6 +77,15 @@ body {
   animation: float-chip 4s ease-in-out infinite;
 }
 
+/* ── How-it-works bento: export card bob ──────────────────────────────────── */
+@keyframes card-bob {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(4px); }
+}
+.card-bob {
+  animation: card-bob 4s ease-in-out infinite;
+}
+
 /* ── Auth-page ambient background ─────────────────────────────────────────── */
 @keyframes drift-diagonal {
   0%   { transform: translate(0,    0)    rotate(0deg); }
@@ -96,7 +105,8 @@ body {
     transition: none !important;
   }
   .chip-float,
-  .auth-bg-el {
+  .auth-bg-el,
+  .card-bob {
     animation: none !important;
   }
 }
