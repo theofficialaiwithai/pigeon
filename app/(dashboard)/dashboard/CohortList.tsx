@@ -39,9 +39,9 @@ const STATUS_STYLES: Record<string, { label: string; badgeVariant: BadgeVariant 
 export interface CohortRow {
   id: string;
   programName: string;
-  cartOpenDate: string;
-  cartCloseDate: string;
-  cohortStartDate: string;
+  cartOpenDate: string | null;
+  cartCloseDate: string | null;
+  cohortStartDate: string | null;
   status: string | null;
   archivedAt: Date | null;
   hasSentEmails: boolean;
@@ -53,6 +53,7 @@ type Tab = "Current" | "Past" | "Archived";
 
 function bucketCohort(cohort: CohortRow): Tab {
   if (cohort.archivedAt) return "Archived";
+  if (!cohort.cohortStartDate) return "Current";
   const today = new Date().toISOString().slice(0, 10);
   return cohort.cohortStartDate >= today ? "Current" : "Past";
 }
