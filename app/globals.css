@@ -77,6 +77,17 @@ body {
   animation: float-chip 4s ease-in-out infinite;
 }
 
+/* ── Auth-page ambient background ─────────────────────────────────────────── */
+@keyframes drift-diagonal {
+  0%   { transform: translate(0,    0)    rotate(0deg); }
+  50%  { transform: translate(30px, -40px) rotate(8deg); }
+  100% { transform: translate(0,    0)    rotate(0deg); }
+}
+/* Each element sets --drift-dur and --drift-delay via inline style */
+.auth-bg-el {
+  animation: drift-diagonal var(--drift-dur, 30s) ease-in-out var(--drift-delay, 0s) infinite;
+}
+
 /* ── Reduced-motion overrides ──────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .reveal {
@@ -84,7 +95,8 @@ body {
     transform: none !important;
     transition: none !important;
   }
-  .chip-float {
+  .chip-float,
+  .auth-bg-el {
     animation: none !important;
   }
 }
