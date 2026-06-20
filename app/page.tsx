@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { FileX, Waves, CalendarClock } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { RevealSection } from "@/components/landing/reveal-section";
 import { StatsBar } from "@/components/landing/stats-bar";
@@ -141,18 +142,54 @@ export default async function LandingPage() {
 
       {/* The problem */}
       <RevealSection>
-        <section className="mx-auto max-w-3xl px-6 py-20 text-center">
-          <h2 className="font-heading text-3xl font-extrabold text-pigeon-ink md:text-4xl">
-            Writing launch emails is the worst part.
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-pigeon-ink-muted">
-            You spend more time staring at a blank Notion doc than actually selling.
-            Then you hire a copywriter, spend $2k, and get back something that
-            doesn&apos;t sound like you. Then you rewrite it anyway.
-          </p>
-          <p className="mt-4 text-lg font-semibold text-pigeon-ink">
-            There&apos;s a better way.
-          </p>
+        <section className="mx-auto max-w-5xl px-6 py-20">
+
+          {/* Header */}
+          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-pigeon-warm-rule bg-pigeon-cream px-4 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-pigeon-ink" />
+              <span className="text-xs font-semibold text-pigeon-ink-muted">The Problem</span>
+            </div>
+            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">
+              <span className="text-pigeon-ink-muted">Writing launch emails</span>
+              {" "}is the worst part of every launch.
+            </h2>
+            <p className="max-w-xl text-base text-pigeon-ink-muted">
+              Most creators rewrite the same nine emails from scratch every cohort, racing a deadline — and end up outsourcing to a VA or generic AI that strips their voice out in the process.
+            </p>
+          </div>
+
+          {/* Problem cards */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-pigeon-warm-rule bg-white p-6">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-pigeon-cream">
+                <FileX className="h-5 w-5 text-pigeon-ink" />
+              </div>
+              <h4 className="font-heading text-base text-pigeon-ink">Starting From Scratch.</h4>
+              <p className="mt-2 text-sm text-pigeon-ink-muted">
+                Every launch means writing nine emails with no template and a deadline closing in.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-pigeon-warm-rule bg-white p-6">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-pigeon-cream">
+                <Waves className="h-5 w-5 text-pigeon-ink" />
+              </div>
+              <h4 className="font-heading text-base text-pigeon-ink">Inconsistent Voice.</h4>
+              <p className="mt-2 text-sm text-pigeon-ink-muted">
+                Outsourcing to a VA or a generic AI tool means the emails stop sounding like you.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-pigeon-warm-rule bg-white p-6">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-pigeon-cream">
+                <CalendarClock className="h-5 w-5 text-pigeon-ink" />
+              </div>
+              <h4 className="font-heading text-base text-pigeon-ink">Manual Scheduling.</h4>
+              <p className="mt-2 text-sm text-pigeon-ink-muted">
+                Even once they&apos;re written, mapping each email to the right day of your cohort calendar is its own project.
+              </p>
+            </div>
+          </div>
+
         </section>
       </RevealSection>
 
