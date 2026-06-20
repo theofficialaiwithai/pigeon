@@ -48,7 +48,20 @@ export async function POST(req: Request) {
     }
     cohortName = cohort.programName;
 
-    const sequenceId = await generateSequenceForCohort(cohortId);
+    // Retry up to 3 attempts with linear backoff (2 s, 4 s)
+    let sequenceId: string | undefined;
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        sequenceId = await generateSequenceForCohort(cohortId);
+        break;
+      } catch (err) {
+        lastErr = err;
+        console.error(`[sequence/generate] Attempt ${attempt} failed:`, err);
+        if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 2000));
+      }
+    }
+    if (!sequenceId) throw lastErr;
     return NextResponse.json({ sequenceId });
   } catch (err) {
     console.error("[sequence/generate] Unhandled error:", err);

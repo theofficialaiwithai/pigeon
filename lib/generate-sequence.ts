@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { callClaude } from "@/lib/anthropic-fetch";
+import { callClaudeTool } from "@/lib/anthropic-fetch";
 import { db } from "@/lib/db";
 import {
   cohorts,
@@ -10,7 +10,6 @@ import {
   voiceProfiles,
 } from "@/lib/schema";
 import { toSendAt, formatSendDate } from "@/lib/dates";
-import { extractJSON, sanitizeJSON } from "@/lib/extract-json";
 import { sendNotification } from "@/lib/notifications";
 
 const EMAIL_SCHEDULE = [
@@ -25,17 +24,76 @@ const EMAIL_SCHEDULE = [
   { type: "final_call", base: "cartClose", offset: 0 },
 ] as const;
 
+type EmailVariantFromClaude = {
+  variant_type: string;
+  subject_line: string;
+  preview_text: string;
+  body_html: string;
+};
+
 type EmailFromClaude = {
   email_type: string;
   subject_line: string;
   preview_text: string;
   body_html: string;
-  variants?: Array<{
-    variant_type: string;
-    subject_line: string;
-    preview_text: string;
-    body_html: string;
-  }>;
+  variants?: EmailVariantFromClaude[];
+};
+
+type SequenceOutput = { emails: EmailFromClaude[] };
+
+// JSON Schema passed to Anthropic — Claude must call the tool with valid input
+const SEQUENCE_SCHEMA = {
+  type: "object",
+  required: ["emails"],
+  properties: {
+    emails: {
+      type: "array",
+      description: "Array of 9 launch emails in order",
+      items: {
+        type: "object",
+        required: ["email_type", "subject_line", "preview_text", "body_html"],
+        properties: {
+          email_type: {
+            type: "string",
+            enum: [
+              "pre_launch_warmup",
+              "list_primer",
+              "cart_open",
+              "curriculum_deep_dive",
+              "student_story",
+              "objection_handling",
+              "close_48h",
+              "close_24h",
+              "final_call",
+            ],
+          },
+          subject_line: { type: "string" },
+          preview_text: { type: "string" },
+          body_html: {
+            type: "string",
+            description: "Clean <p> tags only. No CSS, no inline styles.",
+          },
+          variants: {
+            type: "array",
+            description: "Required only for final_call — 3 variants",
+            items: {
+              type: "object",
+              required: ["variant_type", "subject_line", "preview_text", "body_html"],
+              properties: {
+                variant_type: {
+                  type: "string",
+                  enum: ["urgency_led", "results_led", "personal_note"],
+                },
+                subject_line: { type: "string" },
+                preview_text: { type: "string" },
+                body_html: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 function asDateStr(value: unknown): string {
@@ -45,7 +103,8 @@ function asDateStr(value: unknown): string {
 
 /**
  * Core generation logic. Fetches cohort + teacher + voice profile, calls
- * Claude, persists the sequence, and fires the success notification.
+ * Claude via tool_use (guaranteed valid JSON), persists the sequence, and
+ * fires the success notification.
  * Throws on any failure — callers are responsible for catching.
  * Returns the new sequenceId.
  */
@@ -97,23 +156,9 @@ Do NOT add marketing language outside their voice profile.
 AVOID generic AI writing patterns unless the Voice Profile examples show the teacher actually writes that way: no em dash used as a crutch, no 'it's not X — it's Y' contrast framing, no stock vocabulary (delve, boast, foster, leverage, navigate, robust, comprehensive, multifaceted, tapestry, testament, elevate, unlock, seamless, game-changer). Vary sentence and paragraph length to match the teacher's real rhythm instead of defaulting to smooth, uniform pacing. Take a clear point of view instead of hedging. Use the curriculum summary's actual specifics, not generic paraphrase.
 
 Write 9 emails for the program below.
-For final_call: write 3 variants (urgency_led, results_led, personal_note).
+For final_call: include a variants array with 3 entries (urgency_led, results_led, personal_note).
 Keep each email body to 150–200 words maximum. Be concise — launch emails perform better short.
-Respond with raw JSON only. Do not wrap the response in markdown code fences or backticks. Do not include any text before or after the JSON object.
-
-Schema:
-{ "emails": [
-  { "email_type": string, "subject_line": string, "preview_text": string, "body_html": string },
-  { "email_type": "final_call", "subject_line": string, "preview_text": string, "body_html": string,
-    "variants": [
-      { "variant_type": "urgency_led", "subject_line": string, "preview_text": string, "body_html": string },
-      { "variant_type": "results_led", "subject_line": string, "preview_text": string, "body_html": string },
-      { "variant_type": "personal_note", "subject_line": string, "preview_text": string, "body_html": string }
-    ]
-  }
-] }
-
-body_html: use clean <p> tags. No CSS, no inline styles, no complex HTML.`;
+body_html: use clean <p> tags only. No CSS, no inline styles, no complex HTML.`;
 
   const userMessage = `Program: ${cohort.programName}
 Curriculum: ${cohort.curriculumSummary}
@@ -124,48 +169,23 @@ Cohort Starts: ${asDateStr(cohort.cohortStartDate)}${cohort.seatCount ? `\nSeats
 Send schedule:
 ${scheduleLines}`;
 
-  const { text: rawText, stopReason } = await callClaude({
+  const result = await callClaudeTool<SequenceOutput>({
     model: "claude-sonnet-4-6",
     max_tokens: 16000,
     system: systemPrompt,
     messages: [{ role: "user", content: userMessage }],
+    toolName: "generate_email_sequence",
+    toolDescription: "Output the complete 9-email launch sequence structured data.",
+    inputSchema: SEQUENCE_SCHEMA,
   });
-
-  if (stopReason === "max_tokens") {
-    console.error("[generate-sequence] Response truncated (stop_reason=max_tokens). Raw length:", rawText.length);
-    console.error("[generate-sequence] Truncated tail:", rawText.slice(-300));
-    throw new Error(
-      "The sequence was too long to generate in one pass. Try shortening your curriculum summary and try again."
-    );
-  }
-
-  let parsed: { emails: EmailFromClaude[] };
-  const extracted = extractJSON(rawText);
-  try {
-    // First attempt: direct parse
-    parsed = JSON.parse(extracted) as { emails: EmailFromClaude[] };
-  } catch {
-    try {
-      // Second attempt: sanitize unescaped newlines / tabs inside strings
-      parsed = JSON.parse(sanitizeJSON(extracted)) as { emails: EmailFromClaude[] };
-    } catch {
-      const snippet = rawText.slice(0, 300);
-      console.error(
-        `[generate-sequence] JSON parse failed. stop_reason=${stopReason} rawLen=${rawText.length} snippet=${snippet}`
-      );
-      throw new Error(
-        `Failed to parse Claude response (stop_reason=${stopReason}, rawLen=${rawText.length}). First 300 chars: ${snippet}`
-      );
-    }
-  }
 
   const [sequence] = await db
     .insert(emailSequences)
     .values({ cohortId: cohort.id, teacherId: teacher.id, status: "draft" })
     .returning();
 
-  for (let index = 0; index < parsed.emails.length; index++) {
-    const emailData = parsed.emails[index];
+  for (let index = 0; index < result.emails.length; index++) {
+    const emailData = result.emails[index];
     const scheduledSendAt = sendDates.get(emailData.email_type) ?? null;
 
     const [savedEmail] = await db
