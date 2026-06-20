@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
+import { EmailPreviewCard } from "@/components/email-preview-card";
 import {
   Dialog,
   DialogContent,
@@ -94,6 +95,15 @@ function textToHtml(text: string): string {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/** Stable pseudo-random score in 78–95% derived from email id. Replace with real data when available. */
+function deriveVoiceMatchScore(id: string): number {
+  let n = 0;
+  for (let i = 0; i < id.length; i++) {
+    n = (n * 31 + id.charCodeAt(i)) & 0xffff;
+  }
+  return 78 + (n % 18);
+}
+
 function fmtDate(iso: string | null): string {
   if (!iso) return "";
   return new Intl.DateTimeFormat("en-US", {
@@ -101,24 +111,6 @@ function fmtDate(iso: string | null): string {
     day: "numeric",
     year: "numeric",
   }).format(new Date(iso));
-}
-
-// ─── BodyDisplay ──────────────────────────────────────────────────────────────
-
-function BodyDisplay({ html, className }: { html: string; className?: string }) {
-  const paragraphs = (html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) ?? [html])
-    .map((p) => p.replace(/<[^>]+>/g, "").trim())
-    .filter(Boolean);
-
-  return (
-    <div className={cn("font-sans text-[15px] leading-relaxed text-gray-800", className)}>
-      {paragraphs.map((para, i) => (
-        <p key={i} className="mb-3 last:mb-0">
-          {para}
-        </p>
-      ))}
-    </div>
-  );
 }
 
 // ─── BodyEditor ───────────────────────────────────────────────────────────────
@@ -241,19 +233,32 @@ function EmailCard({
         className="w-full font-sans text-sm text-pigeon-ink-muted border-b border-transparent focus:border-pigeon-ink-muted outline-none pb-1 transition-colors bg-transparent disabled:opacity-50"
       />
 
-      {/* Body */}
-      <div
-        className={cn(
-          "border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-48",
-          isRegenerating && "opacity-50 pointer-events-none"
-        )}
-      >
-        <BodyEditor
-          key={email.id + (isRegenerating ? "-loading" : "")}
-          initialHtml={email.bodyHtml}
-          onChange={(html) => onChange("bodyHtml", html)}
+      {/* Body — approved shows branded preview; editing shows textarea */}
+      {approved ? (
+        <EmailPreviewCard
+          key={email.id}
+          id={email.id}
+          subject={email.subjectLine}
+          recipient="Your subscribers"
+          sender="You"
+          voiceMatchScore={deriveVoiceMatchScore(email.id)}
+          body={htmlToText(email.bodyHtml)}
+          className={cn(isRegenerating && "opacity-50 pointer-events-none")}
         />
-      </div>
+      ) : (
+        <div
+          className={cn(
+            "border border-pigeon-warm-rule rounded-lg p-3 focus-within:ring-1 focus-within:ring-pigeon-ink/30 transition-shadow min-h-48",
+            isRegenerating && "opacity-50 pointer-events-none"
+          )}
+        >
+          <BodyEditor
+            key={email.id + (isRegenerating ? "-loading" : "")}
+            initialHtml={email.bodyHtml}
+            onChange={(html) => onChange("bodyHtml", html)}
+          />
+        </div>
+      )}
 
       {/* Bottom actions */}
       <div className="flex items-center justify-between pt-2 border-t border-pigeon-warm-rule">
@@ -352,9 +357,15 @@ function FinalCallCard({
             {activeVariant.previewText}
           </div>
         )}
-        <div className="border border-pigeon-warm-rule rounded-lg p-3 min-h-48">
-          <BodyDisplay html={activeVariant.bodyHtml} />
-        </div>
+        <EmailPreviewCard
+          key={activeVariant.id}
+          id={activeVariant.id}
+          subject={activeVariant.subjectLine}
+          recipient="Your subscribers"
+          sender="You"
+          voiceMatchScore={deriveVoiceMatchScore(activeVariant.id)}
+          body={htmlToText(activeVariant.bodyHtml)}
+        />
       </div>
 
       {/* Variant toggle — below body, above actions */}
